@@ -1,0 +1,8 @@
+*.pyc
+*~
+venv/
+www/.project
+
+www/.pydevproject
+
+www/.settings/org.eclipse.core.resources.prefs
