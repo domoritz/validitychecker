@@ -1,0 +1,84 @@
+{% load i18n %}
+<!doctype html>
+<html>
+	{% block head %}
+	<head>
+		<meta charset="utf-8">
+
+		<title>{% block title %}Name your pages!{% endblock %}</title>
+		{% block metadata %}
+		<meta name="description" content="{% block description %}{% endblock %}">
+		<meta name="author" content="{% block author %}{% endblock %}">
+		{% endblock %}
+
+		{# Mobile viewport optimized: j.mp/bplateviewport #}
+		{% block mobile_viewport_optimization %}
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		{% endblock %}
+
+		{% block css %}
+		{# CSS: implied media="all" #}
+		{% load compress %}
+
+		{% compress css %}
+		<link rel="stylesheet" href="{{STATIC_URL}}css/style.css" >
+		<link rel="stylesheet" href="{{STATIC_URL}}css/fontface/fontface.css" >
+		{% endcompress %}
+
+
+		{% endblock %}
+
+		{% block extra_css %}{% endblock %}
+
+		{% block head_js %}
+		{% endblock %}
+		{% block extra_head %}{% endblock %}
+	</head>
+	{% endblock %}
+
+	{% block body %}
+	<body {% block body_classes %}{% endblock %}>
+
+		<div class="mask"></div>
+
+		{% block container %}
+		<div id="container">
+			{% block header %}
+			<header>
+
+			</header>
+			{% endblock %}
+
+			{% block navigation %}
+			<nav>
+
+			</nav>
+			{% endblock %}
+
+			<div id="main" role="main">
+				{% block content %}
+				{% endblock %}
+			</div>
+
+			{% block footer %}
+			<footer>
+
+			</footer>
+			{% endblock %}
+		</div> {# end of #container #}
+		{% endblock %}
+
+		{% block footer_js %}
+
+		{% load compress %}
+
+		{% compress js %}
+		<script src="{{STATIC_URL}}js/libs/modernizr-2.5.3.js" type="text/javascript" charset="utf-8"></script>
+		<script src="{{STATIC_URL}}js/libs/jquery-1.7.1.js" type="text/javascript" charset="utf-8"></script>
+		{% endcompress %}
+
+		{% endblock %}
+
+	</body>
+	{% endblock %}
+</html>

@@ -1,0 +1,58 @@
+/* the humans responsible & colophon */
+/* humanstxt.org */
+
+/* TEAM for Version 2.0 */
+
+Dominik Moritz: Developer
+  Site: http://domoritz.de
+  Twitter: doobly_doo
+  Location: Germany
+
+
+/* TEAM for Version 1.0 at RHoK Berlin 2011*/
+  David Owens: UX developer
+  Site: http://fineartdavid.com
+  Twitter: fineartdavid
+  Location: Berlin
+  
+  Norman Rzepka: Frontend developer
+  Site: http://normanrzepka.de
+  Twitter: normanrz
+  Location: Potsdam
+  
+  Thomas Werkmeister: 
+  Location: Potsdam
+
+  Robert Lehmann: Developer
+
+  Dominik Moritz: Developer
+  Site: http://domoritz.de
+  Twitter: doobly_doo
+  Location: Germany
+  
+  Milena Glim: Designer
+  Twitter: Milenskaya
+  Location: Berlin
+  
+  Andre Rieck: Developer
+  
+/* THANKS */
+  Names (& URL): RHoK (http://rhok.org/)
+
+/* SITE */
+  Standards: HTML5, CSS3
+  Components: Modernizr, jQuery, Django
+  Software: Python, Sqlite (or any other relational database)
+
+
+  __       __                  __                  __                  _______                       __  __           
+/  \     /  |                /  |                /  |                /       \                     /  |/  |          
+$$  \   /$$ |  ______    ____$$ |  ______        $$/  _______        $$$$$$$  |  ______    ______  $$ |$$/  _______  
+$$$  \ /$$$ | /      \  /    $$ | /      \       /  |/       \       $$ |__$$ | /      \  /      \ $$ |/  |/       \ 
+$$$$  /$$$$ | $$$$$$  |/$$$$$$$ |/$$$$$$  |      $$ |$$$$$$$  |      $$    $$ lt; /$$$$$$  |/$$$$$$  |$$ |$$ |$$$$$$$  |
+$$ $$ $$/$$ | /    $$ |$$ |  $$ |$$    $$ |      $$ |$$ |  $$ |      $$$$$$$  |$$    $$ |$$ |  $$/ $$ |$$ |$$ |  $$ |
+$$ |$$$/ $$ |/$$$$$$$ |$$ \__$$ |$$$$$$$$/       $$ |$$ |  $$ |      $$ |__$$ |$$$$$$$$/ $$ |      $$ |$$ |$$ |  $$ |
+$$ | $/  $$ |$$    $$ |$$    $$ |$$       |      $$ |$$ |  $$ |      $$    $$/ $$       |$$ |      $$ |$$ |$$ |  $$ |
+$$/      $$/  $$$$$$$/  $$$$$$$/  $$$$$$$/       $$/ $$/   $$/       $$$$$$$/   $$$$$$$/ $$/       $$/ $$/ $$/   $$/ 
+                                                                                                                     
+
