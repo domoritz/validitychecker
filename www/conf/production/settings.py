@@ -3,9 +3,6 @@ import os
 
 PROJECT_ROOT = os.environ['DJANGO_PROJECT_ROOT']
 
-TEMPLATE_DEBUG = False
-COMPRESS_ENABLED = True
-
 ADMINS = (
     ('admin', 'admin@localhost'),
 )
@@ -25,3 +22,24 @@ DATABASES = {
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en-us'
+
+
+
+TEMPLATE_DEBUG = False
+COMPRESS_ENABLED = True
+COMPRESS_OFFLINE = True
+
+COMPRESS_OUTPUT_DIR = 'CACHE'
+
+#http://django_compressor.readthedocs.org/en/latest/settings/#backend-settings
+#COMPRESS_CSS_FILTERS = ['compressor.filters.css_default.CssAbsoluteFilter']
+#COMPRESS_JS_FILTERS = ['compressor.filters.jsmin.JSMinFilter']
+
+#CACHE_BACKEND
+
+MIDDLEWARE_CLASSES += ((),
+    'htmlmin.middleware.HtmlMinifyMiddleware',
+    'django.middleware.gzip.GZipMiddleware',
+    'django.middleware.cache.CacheMiddleware',
+    'django.middleware.http.ConditionalGetMiddleware',
+)

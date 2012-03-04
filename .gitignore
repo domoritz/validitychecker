@@ -2,6 +2,8 @@
 *~
 venv/
 www/.project
+tmp/
+dev.db
 
 www/.pydevproject
 

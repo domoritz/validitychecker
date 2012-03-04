@@ -86,7 +86,7 @@ MEDIA_URL = '/uploads/'
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
+STATIC_ROOT = os.path.join(PROJECT_ROOT, 'tmp')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -108,14 +108,48 @@ STATICFILES_FINDERS = (
     'compressor.finders.CompressorFinder',
 )
 
+# compressor settings
+# pyscss https://github.com/Kronuz/pyScss/blob/master/scss/tool.py
+
+COMPRESS_PRECOMPILERS = (
+    ('text/x-scss', 'pyscss -C {infile}'),
+)
+
+KEEP_COMMENTS_ON_MINIFYING = True
+
 #==============================================================================
 # Templates
 #==============================================================================
 
 TEMPLATE_DIRS = (
-    os.path.join(PROJECT_DIR, 'templates'),
     os.path.join(PROJECT_DIR, PROJECT_MODULE_NAME, 'templates'),
 )
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.core.context_processors.debug',
+    'django.core.context_processors.i18n',
+    'django.core.context_processors.media',
+    'django.core.context_processors.static',
+    'django.contrib.auth.context_processors.auth',
+    'django.contrib.messages.context_processors.messages',
+)
+
+#==============================================================================
+# Middleware
+#==============================================================================
+
+MIDDLEWARE_CLASSES = (
+    'django.middleware.common.CommonMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
+)
+
+#==============================================================================
+# Apps
+#==============================================================================
 
 INSTALLED_APPS = (
     'django.contrib.auth', #for admin

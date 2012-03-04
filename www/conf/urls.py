@@ -5,7 +5,7 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    url(r'^', include('apps.validitychecker.urls')),
+    url(r'^', include('www.apps.validitychecker.urls')),
 )
 
 urlpatterns += patterns('',
