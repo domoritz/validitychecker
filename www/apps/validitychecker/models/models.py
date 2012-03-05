@@ -56,19 +56,29 @@ class Datatype(models.Model):
         app_label= 'validitychecker'
 
 
-QUERY_STATUS = (
-        ('U', 'Unknown'),
-        ('R', 'Running'),
-        ('F', 'Finished'),
-        ('I', 'Invalid'),
-)
-
 class Query(models.Model):
-    query = models.CharField(max_length=255)
-    number = models.IntegerField()
-    status = models.CharField(max_length=1, choices=QUERY_STATUS)
 
-    last_updated = models.DateTimeField(auto_now=True)
+	UNKNOWN = 0
+	QUEUED = 1
+	RUNNING = 2
+	FINISHED = 3
+	INVALID = 4
+	ERROR = 5
 
-    class Meta:
-        app_label= 'validitychecker'
+	QUERY_STATUS = (
+		(UNKNOWN, 'Unknown'),
+		(QUEUED, 'Queued'),
+		(RUNNING, 'Running'),
+		(FINISHED, 'Finished'),
+		(INVALID, 'Invalid'),
+		(ERROR, 'Error'),
+	)
+
+	query = models.CharField(max_length=255)
+	number = models.IntegerField(null=True)
+	status = models.IntegerField(choices=QUERY_STATUS, default=UNKNOWN)
+
+	last_updated = models.DateTimeField(auto_now=True)
+
+	class Meta:
+		app_label= 'validitychecker'

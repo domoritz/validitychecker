@@ -10,6 +10,9 @@ from django.core.management.base import BaseCommand
 PROJECT_ROOT, PROJECT_MODULE_NAME = os.path.split(
                 os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
+#print "PROJECT_ROOT:", PROJECT_ROOT
+#print "PROJECT_MODULE_NAME:", PROJECT_MODULE_NAME
+
 # Check that the project module can be imported.
 try:
     __import__(PROJECT_MODULE_NAME)
