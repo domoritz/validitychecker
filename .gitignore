@@ -8,3 +8,4 @@ dev.db
 www/.pydevproject
 
 www/.settings/org.eclipse.core.resources.prefs
+run.sh
