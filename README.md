@@ -50,6 +50,9 @@ Just in case you have no idea how to get going here are the required commands fo
 * Available in English and German
 * Adaptive Design for smaller screen sizes
 
+## Documentation
+* [Wiki](/domoritz/validitychecker/wiki)
+
 ## Remaining issues
 * Register for the ISI Web of Knowledge API and implement the hooks
 * Digestible article summaries 
