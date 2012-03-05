@@ -148,6 +148,22 @@ MIDDLEWARE_CLASSES = (
 )
 
 #==============================================================================
+# Celery
+#==============================================================================
+
+#BROKER_HOST = "127.0.0.1"
+#BROKER_PORT = 5672
+#BROKER_VHOST = "/"
+#BROKER_USER = "guest"
+#BROKER_PASSWORD = "guest"
+
+#==============================================================================
+# Scrapy
+#==============================================================================
+
+os.environ['SCRAPY_SETTINGS_MODULE'] = 'www.apps.scrapers.scrapers.settings'
+
+#==============================================================================
 # Apps
 #==============================================================================
 
@@ -160,6 +176,8 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'django.contrib.staticfiles',
     'compressor',
+    #'celery',
 
     'www.apps.validitychecker',
+    'www.apps.scrapers',
 )
