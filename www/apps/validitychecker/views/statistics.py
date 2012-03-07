@@ -8,7 +8,7 @@ from random import shuffle, seed
 
 from www.apps.validitychecker.views import results
 
-from www.apps.validitychecker.models import Query, Article, Author, Language, Datatype
+from www.apps.validitychecker.models import Query, Article, Author
 from www.utils import parsers, IsiHandler, gviz_api
 import urllib
 

@@ -8,7 +8,7 @@ from www.apps.validitychecker.views import results
 from www.apps.validitychecker.models import Query
 
 def index(request):
-    popular_queries = list(Query.objects.order_by('-number')[:15])
+    popular_queries = list(Query.objects.order_by('-count')[:15])
     seed(42)
     shuffle(popular_queries)
     for q in popular_queries:

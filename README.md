@@ -3,15 +3,17 @@ Climate Goggles
 -- protect your brain from climate fiction
 
 ## How to use
-### Dependencies
+
+### Version 1
+#### Dependencies
 * [Python 2.7](http://python.org/)
 * [Django](https://www.djangoproject.com/)
 * [Beautiful soup](http://www.crummy.com/software/BeautifulSoup/)
 * [lxml](http://lxml.de/)
-* [SQLite](http://www.sqlite.org/)
+* [SQLite](http://www.sqlite.org/) or any other relational database that is supported by django
 
 
-### Installation
+#### Installation
 Just in case you have no idea how to get going here are the required commands for Ubuntu:
     
     git clone git@github.com:lehmannro/validitychecker.git
@@ -22,6 +24,41 @@ Just in case you have no idea how to get going here are the required commands fo
     cd validitychecker/www/
     python manage.py syncdb --noinput
     python manage.py runserver
+
+### Version 2
+#### Dependencies
+* [Python 2.7](http://python.org/)
+* [Django](https://www.djangoproject.com/)
+* [SQLite](http://www.sqlite.org/) or any other relational database that is supported by django
+* [Redis](http://redis.io/) or rabbitMQ as a celery broker
+
+Full list of required Python packages can be found in devel-req.txt.
+
+#### Installation
+This Version requires a little bit more work that version 1 since it is more powerful.
+
+    git clone git@github.com:domoritz/validitychecker.git
+    sudo apt-get install python python-pip python-dev sqlite3 redis
+    # use virtualenv if possible!
+    pip install -r devel-req.txt
+    cd validitychecker/www/bin/
+    python manage.py syncdb --noinput
+
+#### Run
+Run these three command in different sessions on your command line
+
+    # start redis
+    redis-server /usr/local/etc/redis.conf
+
+    # run celery
+    python manage.py celeryd -l INFO
+
+    # run django
+    python manage.py runserver
+
+If you want to run a scrapy spider or debug scrapy, use this command:
+
+    python manage.py scrapy
 
 
 ## Problem
@@ -54,7 +91,7 @@ Just in case you have no idea how to get going here are the required commands fo
 * Register for the ISI Web of Knowledge API and implement the hooks
 * Digestible article summaries 
 
-## Team
+## Team for Version 1
 
 ### Backend
 * [Robert Lehmann](https://github.com/lehmannro/)

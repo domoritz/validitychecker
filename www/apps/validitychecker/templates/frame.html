@@ -23,8 +23,8 @@
 		{% compress css %}
 		<link rel="stylesheet" href="{{STATIC_URL}}css/base.css.scss" type="text/x-scss">
 		<link rel="stylesheet" href="{{STATIC_URL}}css/style.css.scss" type="text/x-scss">
-		<link rel="stylesheet" href="{{STATIC_URL}}css/fontface/fontface.css" >
 		{% endcompress %}
+		<link rel="stylesheet" href="{{STATIC_URL}}css/fontface/fontface.css" >
 
 
 		{% endblock %}
@@ -76,6 +76,11 @@
 		{% compress js %}
 		<script src="{{STATIC_URL}}js/libs/modernizr-2.5.3.js" type="text/javascript" charset="utf-8"></script>
 		<script src="{{STATIC_URL}}js/libs/jquery-1.7.1.js" type="text/javascript" charset="utf-8"></script>
+		<script src="{{STATIC_URL}}js/libs/profiling/yahoo-profiling.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="{{STATIC_URL}}js/libs/jquery.tagcloud.min.js" type="text/javascript" charset="utf-8"></script>
+
+		<script src="{{STATIC_URL}}js/goggles.tagcloud.js" type="text/javascript" charset="utf-8"></script>
+		<script src="{{STATIC_URL}}js/application.js" type="text/javascript" charset="utf-8"></script>
 		{% endcompress %}
 
 		{% endblock %}

@@ -72,8 +72,10 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
     color: $grayDark;
-	font-weight: bold;
-    text-rendering: optimizelegibility;
+	font-weight: normal;
+	font-family: ArvoBold, Arial, Helvetica, sans-serif;
+
+	text-rendering: optimizelegibility;
 }
 
 a {
@@ -200,8 +202,6 @@ form.search {
 
 	.sell h2,
 	.statistics h2 {
-		font-family: ArvoBold, Arial, Helvetica, sans-serif;
-		font-weight: normal;
 		font-size: 2em;
 	}
 
