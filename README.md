@@ -38,6 +38,7 @@ Full list of required Python packages can be found in devel-req.txt.
 This Version requires a little bit more work that version 1 since it is more powerful.
 
     git clone git@github.com:domoritz/validitychecker.git
+    git co develop
     sudo apt-get install python python-pip python-dev sqlite3 redis
     # use virtualenv if possible!
     pip install -r devel-req.txt

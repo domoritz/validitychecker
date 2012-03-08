@@ -6,10 +6,7 @@ from scrapy.contrib.loader import XPathItemLoader
 from scrapy.spider import BaseSpider
 from scrapy import log
 from www.apps.scrapers.scrapers.items import ArticleItem
-from scrapy.contrib.loader.processor import MapCompose, Compose, TakeFirst, Join
-
-from scrapy.exceptions import DropItem
-from django.db.utils import IntegrityError
+from scrapy.contrib.loader.processor import MapCompose, TakeFirst, Join
 
 from datetime import date
 
@@ -28,7 +25,7 @@ class ScholarSpider(BaseSpider):
         ]
 
         self.intComposer = MapCompose(int)
-        self.dateComposer = MapCompose(lambda d: date(d,1,1))
+        self.dateComposer = MapCompose(lambda d: date(d, 1, 1))
         self.cleanup = MapCompose(lambda s: s.replace('\n',''))
 
     def parse(self, response):
@@ -46,8 +43,10 @@ class ScholarSpider(BaseSpider):
             l.add_xpath('title', 'h3[@class="gs_rt"]/a//text()', Join(''))
             l.add_xpath('url', 'h3[@class="gs_rt"]/a/@href')
             l.add_xpath('snippet', 'div[@class="gs_rs"]//text()', Join(''), self.cleanup)
-            l.add_xpath('source', 'div[@class="gs_a"]/text()', re='-\s+(.+)[,|-]\s+\d{4}')
-            l.add_xpath('publish_date', 'div[@class="gs_a"]/text()', self.intComposer, self.dateComposer, re='\s+(\d{4})\s+\-')
+            l.add_xpath('source', 'div[@class="gs_a"]//text()', Join(''), re='-\s+(.+)[,|-]\s+\d{4}')
+            l.add_xpath('publish_date', 'div[@class="gs_a"]//text()', Join(''), self.intComposer, self.dateComposer, re='\s+(\d{4})\s+\-')
+
+            l.add_xpath('author', 'div[@class="gs_a"]//text()', TakeFirst(), re='\A(.+?)\s+-\s+')
 
             yield l.load_item()
 

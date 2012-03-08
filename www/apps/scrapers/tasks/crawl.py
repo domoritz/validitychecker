@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from celery.task import Task
 from celery.registry import tasks
 
@@ -36,7 +39,7 @@ class CrawlScholarTask(Task):
         self.qobj.save()
 
 
-        mySettings = {'LOG_ENABLED': True, 'ITEM_PIPELINES': 'www.apps.scrapers.scrapers.pipelines.DjangoPipeline'} # global settings http://doc.scrapy.org/topics/settings.html
+        mySettings = {'LOG_ENABLED': True, 'ITEM_PIPELINES': 'www.apps.scrapers.scrapers.pipelines.DjangoArticlePipeline'} # global settings http://doc.scrapy.org/topics/settings.html
 
         settings.overrides.update(mySettings)
 

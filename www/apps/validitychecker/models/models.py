@@ -1,16 +1,12 @@
-from django.db import models
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-GENDER_CHOICES = (
-    ('M', 'Male'),
-    ('F', 'Female'),
-)
+from django.db import models
 
 class Author(models.Model):
     articles = models.ManyToManyField('Article', verbose_name="articles the author published")
-    name = models.CharField(max_length=60, verbose_name="full name of the author")
-    isi_score = models.IntegerField('ISI h-score', null=True)
-    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True)
-
+    name = models.CharField(unique=True, max_length=60, verbose_name="full name of the author")
+    isi_score = models.IntegerField('ISI h-score', null=True, blank=True)
 
     def __unicode__(self):
         return u'%s' % self.name
@@ -19,15 +15,34 @@ class Author(models.Model):
         app_label= 'validitychecker'
 
 class Article(models.Model):
-    title = models.CharField(unique=True, max_length=255)
-    snippet = models.TextField(null=True)
-    publish_date = models.DateField('date published')
-    source = models.CharField(max_length=2048, null=True)
 
+    UNKNOWN = 0
+    QUEUED = 1
+    RUNNING = 2
+    ACCEPTED = 3
+    REJECTED = 4
+    INVALID = 5
+    ERROR = 6
+
+    QUERY_STATUS = (
+        (UNKNOWN, 'Unknown'),
+        (QUEUED, 'Queued'),
+        (RUNNING, 'Running'),
+        (ACCEPTED, 'Accepted'),
+        (REJECTED, 'Rejected'),
+        (INVALID, 'Invalid'),
+        (ERROR, 'Error'),
+    )
+
+    title = models.CharField(unique=True, max_length=255)
+    snippet = models.TextField(null=True, blank=True)
+    publish_date = models.DateField('date published')
+    source = models.CharField(max_length=2048, null=True, blank=True)
     url = models.CharField(max_length=255)
 
-    #is cites this is one, if one citation this is 2 ...
-    times_cited_on_isi = models.IntegerField(null=True)
+    status = models.IntegerField(choices=QUERY_STATUS, default=UNKNOWN, null=True)
+
+    times_cited_on_isi = models.IntegerField(default=0, null=True)
 
     last_updated = models.DateTimeField(auto_now=True)
 
@@ -59,10 +74,11 @@ class Query(models.Model):
     )
 
     query = models.CharField(max_length=255)
-    articles = models.ManyToManyField('Article', verbose_name="articles matching this query", null=True)
-    count = models.IntegerField(verbose_name="how often query has been used", null=True)
+    articles = models.ManyToManyField('Article', verbose_name="articles matching this query", null=True, blank=True)
+    count = models.IntegerField(verbose_name="how often query has been used", default=0)
+
     status = models.IntegerField(choices=QUERY_STATUS, default=UNKNOWN)
-    message = models.CharField(max_length=2048, null=True)
+    message = models.CharField(max_length=2048, null=True, blank=True)
 
     last_updated = models.DateTimeField(auto_now=True)
 
