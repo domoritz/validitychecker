@@ -80,6 +80,7 @@ If you want to run a scrapy spider or debug scrapy, use this command:
 * Match the authors against ISI
 * Compute a score for the authors
 * Find easy-to-read resources of the author
+* [Description of our solution on the RHoK website](http://www.rhok.org/solutions/climate-goggles)
 
 ## User expierience
 * The user experience is designed to be simple
@@ -92,7 +93,10 @@ If you want to run a scrapy spider or debug scrapy, use this command:
 * Register for the ISI Web of Knowledge API and implement the hooks
 * Digestible article summaries 
 
-## Team for Version 1
+## Team
+
+### Version 2
+* [Dominik Moritz](https://github.com/domoritz/)
 
 ### Backend
 * [Robert Lehmann](https://github.com/lehmannro/)
@@ -111,6 +115,7 @@ If you want to run a scrapy spider or debug scrapy, use this command:
 * [Google Scholar](http://scholar.google.com/)
 * [ISI Web Knowledge](http://apps.isiknowledge.com/)
 * [Arvo Font](http://www.fontsquirrel.com/fonts/arvo)
+* ...
 
 
 
