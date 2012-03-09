@@ -89,6 +89,9 @@ If you want to run a scrapy spider or debug scrapy, use this command:
 * Available in English and German
 * Adaptive Design for smaller screen sizes
 
+## Documentation
+* [Wiki](/domoritz/validitychecker/wiki)
+
 ## Remaining issues
 * Register for the ISI Web of Knowledge API and implement the hooks
 * Digestible article summaries 
