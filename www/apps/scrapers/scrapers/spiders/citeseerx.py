@@ -3,16 +3,16 @@
 
 from scrapy.selector import HtmlXPathSelector
 from scrapy.contrib.loader import XPathItemLoader
-from scrapy.contrib.spiders import CrawlSpider
+from scrapy.spider import BaseSpider
 from scrapy import log
 from www.apps.scrapers.scrapers.items import ArticleItem
 from scrapy.contrib.loader.processor import MapCompose, TakeFirst, Join
 
 from datetime import date
 
-class ScholarSpider(CrawlSpider):
-    name = 'scholar'
-    allowed_domains = ['scholar.google.com']
+class CiteseerXSpider(BaseSpider):
+    name = 'citeseerx'
+    allowed_domains = ['citeseer.ist.psu.edu']
 
     def __init__(self, name=None, query="Solar Flares", number=10, qobj=None):
         self.query = query
@@ -49,23 +49,4 @@ class ScholarSpider(CrawlSpider):
             l.add_xpath('author', 'div[@class="gs_a"]//text()', TakeFirst(), re='\A(.+?)\s+-\s+')
 
             yield l.load_item()
-
-            """
-            d['footer'] = element.select("font/span[@class='gs_fl']").extract()
-            d['title'] = element.select("h3[@class='gs_rt']/a/text()").extract()
-            d['header'] = element.select("div[@class='gs_a']/text()")
-            d['author'] = d['header']
-            d['publish_date'] = date(int(d['header'].re('(\d{4})\s*\-')[0]),1,1)
-            d['publication'] = d['header']
-            d['ptype'] = element.select("div[@class='gs_rt']/h3/span").extract()
-            d['abstract'] = element.select("div[@class='gs_rs']/text()").extract()
-            d['cited_by'] = element.select("div[@class='gs_fl']/a[contains(.,'Cited by')]/text()").extract()
-            d['cited_ref'] = element.select("div[@class='gs_fl']/a[contains(.,'Cited by')]").extract()
-            d['from_domain'] = element.select("span[@class='gs_ggs gs_fl']/a").extract()
-
-            item = ArticleItem()
-            item['title'] = d['title']
-            item['abstract'] = d['abstract']
-            item['publish_date'] = d['publish_date']
-            """
 

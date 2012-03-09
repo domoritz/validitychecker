@@ -11,22 +11,21 @@ from scrapy import signals
 from scrapy.xlib.pydispatch import dispatcher
 from scrapy.crawler import CrawlerProcess
 
-#from www.apps.scrapers.crawlerscript import CrawlerScript
-
 from www.apps.validitychecker.models import Query
-from www.apps.scrapers.scrapers.spiders.scholar import ScholarSpider
+from www.apps.scrapers.scrapers.spiders import ScholarSpider, CiteseerXSpider
 
 import os
 os.environ.setdefault('SCRAPY_SETTINGS_MODULE', 'www.apps.scrapers.scrapers.settings')
 
-class CrawlScholarTask(Task):
+class CrawlTask(Task):
 
-    count = 0
-    qobj = None
+    def __init__(self):
+        self.count = 0
+        self.qobj = None
 
     def catch_item(self, sender, item, **kwargs):
-            self.count += 1
-            print "Got:", self.count, item
+        self.count += 1
+        print "Got:", self.count, item
 
     def run(self, query="solar flares", number = 10, qobj=None, **kwargs):
         self.qobj = qobj
@@ -53,7 +52,7 @@ class CrawlScholarTask(Task):
         crawler.configure()
 
         # schedule spider
-        spider = ScholarSpider(query=query, number=number, qobj=qobj)
+        spider = self.spiderclass(query=query, number=number, qobj=qobj)
         crawler.crawl(spider)
 
         # start engine scrapy/twisted
@@ -61,14 +60,7 @@ class CrawlScholarTask(Task):
         crawler.start()
         print "ENGINE STOPPED"
         print "Fetched %s articles(s)" % self.count
-        crawler.stop()
-
-        """
-        items = list()
-        crawler = CrawlerScript()
-        items.append(crawler.crawl(spider))
-        print items
-        """
+        #crawler.stop()
 
     def on_success(self, retval, task_id, args, kwargs):
         self.qobj.status = Query.FINISHED
@@ -79,6 +71,16 @@ class CrawlScholarTask(Task):
         self.qobj.status = Query.ERROR
         self.qobj.message = einfo
         self.qobj.save()
+
+class CrawlScholarTask(CrawlTask):
+    def __init__(self):
+        CrawlTask.__init__(self)
+        self.spiderclass = ScholarSpider
+
+class CrawlCiteseerXTask(CrawlTask):
+    def __init__(self):
+        CrawlTask.__init__(self)
+        self.spiderclass = CiteseerXSpider
 
 tasks.register(CrawlScholarTask)
 

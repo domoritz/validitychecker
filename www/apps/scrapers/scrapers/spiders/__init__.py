@@ -6,3 +6,6 @@
 #
 # For more info see:
 # http://doc.scrapy.org/topics/spiders.html
+
+from scholar import *
+from citeseerx import *
