@@ -3,9 +3,7 @@
 
 from suds.client import Client
 from suds.transport.http import HttpTransport
-import logging
 import urllib2
-from xml.etree.ElementTree import Element, SubElement, tostring
 
 class HTTPSudsPreprocessor(urllib2.BaseHandler):
     def __init__(self, SID):
@@ -18,62 +16,6 @@ class HTTPSudsPreprocessor(urllib2.BaseHandler):
     https_request = http_request
 
 
-class WokmwsXMLBuilder():
-    def buildQueryParameters(self, query):
-        doc = Element('doc')
-        node = SubElement(doc,'databaseID')
-        node.text = 'WOS'
-
-        node = SubElement(doc,'editions')
-        snode = SubElement(node,'collection')
-        snode.text = 'WOS'
-        snode = SubElement(node,'edition')
-        snode.text = 'SSCI'
-
-        node = SubElement(doc,'editions')
-        snode = SubElement(node,'collection')
-        snode.text = 'WOS'
-        snode = SubElement(node,'edition')
-        snode.text = 'SCI'
-
-        node = SubElement(doc,'queryLanguage')
-        node.text = 'en'
-
-        node = SubElement(doc,'userQuery')
-        node.text = query
-
-        xml = ""
-        for node in doc:
-            xml += tostring(node, 'UTF-8', 'xml')+"\n"
-
-        return xml
-
-    def buildRetrieveParameters(self):
-        doc = Element('doc')
-        node = SubElement(doc,'count')
-        node.text = '5'
-
-        node = SubElement(doc,'fields')
-        snode = SubElement(node,'name')
-        snode.text = 'Date'
-        snode = SubElement(node,'sort')
-        snode.text = 'D'
-
-        node = SubElement(doc,'fields')
-        snode = SubElement(node,'name')
-        snode.text = 'Relevance'
-        snode = SubElement(node,'sort')
-        snode.text = 'D'
-
-        node = SubElement(doc,'firstRecord')
-        node.text = '1'
-
-        xml = ""
-        for node in doc:
-            xml += tostring(node, 'UTF-8', 'xml')+"\n"
-
-        return xml
-
 class WokmwsSoapy():
     """
     main steps you have to do:
@@ -84,8 +26,8 @@ class WokmwsSoapy():
         self.url = self.client = {}
         self.SID = ''
 
-        self.url['auth'] = 'http://search.isiknowledge.com/esti/wokmws/ws/WOKMWSAuthenticate?wsdl'
-        self.url['search'] = 'http://search.isiknowledge.com/esti/wokmws/ws/WokSearchLite?wsdl'
+        self.url['auth'] = 'http://search.isiknowledge.com:2003/esti/wokmws/ws/WOKMWSAuthenticate?wsdl'
+        self.url['search'] = 'http://search.isiknowledge.com:2003/esti/wokmws/ws/WokSearchLite?wsdl'
 
         self.prepare()
 
@@ -113,17 +55,38 @@ class WokmwsSoapy():
     def close(self):
         self.client['auth'].service.closeSession()
 
-    def search(self, query="TI=(fiber OR fibre) AND TI=beta glucan"):
-        xb = WokmwsXMLBuilder()
-        qxml = xb.buildQueryParameters(query)
-        rxml = xb.buildRetrieveParameters()
-        self.client['search'].service.search(qxml, rxml)
+    def search(self, query="TS=Solar Flares"):
+        qparams = {
+            'databaseID' : 'WOS',
+            'userQuery' : query,
+            'queryLanguage' : 'en',
+            'editions' : [{
+                'collection' : 'WOS',
+                'edition' : 'SCI',
+            },{
+                'collection' : 'WOS',
+                'edition' : 'SSCI',
+            }]
+        }
+
+        rparams = {
+            'count' : 5, # 1-100
+            'firstRecord' : 1,
+            'fields' : [{
+                'name' : 'Relevance',
+                'sort' : 'D',
+            }],
+        }
+
+        return self.client['search'].service.search(qparams, rparams)
 
 # set up logging for debugging purposes
+""" add/remove # to toggle
+import logging
 logging.basicConfig(level=logging.INFO)
 logging.getLogger('suds.client').setLevel(logging.DEBUG)
 logging.getLogger('suds.transport').setLevel(logging.DEBUG)
-
+#"""
 
 def main():
     soap = WokmwsSoapy()
@@ -136,8 +99,11 @@ def main():
 
     print "SID:", soap.SID
 
-    soap.search()
-    print "Last send:", soap.client['search'].last_sent()
+    result = soap.search()
+    for record in result.records:
+        print record.title[0][1][0]
+        print record.authors[0][1]
+    print result.recordsFound
 
 if __name__ == "__main__":
     main()
