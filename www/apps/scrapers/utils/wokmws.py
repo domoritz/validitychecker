@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+wokwms = web of knowledge web services
+"""
+
 from suds.client import Client
 from suds.transport.http import HttpTransport
 import urllib2
@@ -16,11 +20,11 @@ class HTTPSudsPreprocessor(urllib2.BaseHandler):
     https_request = http_request
 
 
-class WokmwsSoapy():
+class WokmwsSoapClient():
     """
     main steps you have to do:
-        soap = WokmwsSoapy()
-        soap.search(...)
+        soap = WokmwsSoapClient()
+        results = soap.search(...)
     """
     def __init__(self):
         self.url = self.client = {}
@@ -55,7 +59,7 @@ class WokmwsSoapy():
     def close(self):
         self.client['auth'].service.closeSession()
 
-    def search(self, query="TS=Solar Flares"):
+    def search(self, query):
         qparams = {
             'databaseID' : 'WOS',
             'userQuery' : query,
@@ -89,7 +93,7 @@ logging.getLogger('suds.transport').setLevel(logging.DEBUG)
 #"""
 
 def main():
-    soap = WokmwsSoapy()
+    soap = WokmwsSoapClient()
 
     print "Auth Client:"
     print soap.client['auth']

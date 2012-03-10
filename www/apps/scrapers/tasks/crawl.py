@@ -1,15 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+will crawl a website in order to get data about articles and authors
+"""
+
 from celery.task import Task
 from celery.registry import tasks
 
 from scrapy.conf import settings
-from scrapy import project
-from scrapy.crawler import CrawlerProcess
-from scrapy import signals
+from scrapy import project, signals
 from scrapy.xlib.pydispatch import dispatcher
-from scrapy.crawler import CrawlerProcess
+from scrapy.crawler import CrawlerProcess, Crawler
 
 from www.apps.validitychecker.models import Query
 from www.apps.scrapers.scrapers.spiders import ScholarSpider, CiteseerXSpider

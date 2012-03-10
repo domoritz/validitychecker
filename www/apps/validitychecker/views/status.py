@@ -7,7 +7,7 @@ from django.utils import simplejson
 from www.apps.validitychecker.views import *
 from www.apps.validitychecker.models import Query
 
-from www.apps.scrapers.tasks import CrawlScholarTask
+from www.apps.scrapers.tasks import CrawlScholarTask, FetchWokmwsTask
 
 def status(request, query):
     """
@@ -17,10 +17,14 @@ def status(request, query):
 
     qobj, created = Query.objects.get_or_create(query=query, defaults={'query':query})
 
-    if created or qobj.status in [Query.INVALID, Query.ERROR]:
+    #c = CrawlScholarTask()
+    #c.run(query=query, number=10, qobj=qobj)
+
+    if created or qobj.status in [Query.INVALID, Query.ERROR] or True:
         #queue query
         try:
             CrawlScholarTask.delay(query=query, number=10, qobj=qobj)
+            FetchWokmwsTask.delay(query=query, qobj=qobj)
         except Exception, e:
             qobj.status = Query.ERROR
             qobj.message = str(e)
@@ -31,10 +35,10 @@ def status(request, query):
     querystatus = Query.QUERY_STATUS[int(qobj.status)]
     querymessage = qobj.message
 
-    status = {
+    statusdict = {
         'status' : querystatus,
         'message' : querymessage,
         'resulturl' : '/results/'+query,
     }
 
-    return HttpResponse(simplejson.dumps(status), mimetype='application/json')
+    return HttpResponse(simplejson.dumps(statusdict), mimetype='application/json')
