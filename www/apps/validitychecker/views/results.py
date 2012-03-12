@@ -1,25 +1,22 @@
-from django.core.urlresolvers import reverse
 from django.db.models import F, Count, Sum, Q
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_exempt
-from random import shuffle, seed
 import math
-
-from datetime import date
-import urllib
 
 from www.apps.validitychecker.views import *
 
 from www.apps.validitychecker.models import Query, Article, Author
-from www.utils import parsers, IsiHandler, gviz_api
 
 def results(request, query):
 
     qobj = Query.objects.get(query__iexact=query)
 
     if qobj.status in [Query.FINISHED]:
+
+        qobj.count = F('count') + 1
+        qobj.save()
 
         resultset = authors_and_articles_for_query(qobj)
 
