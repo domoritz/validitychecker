@@ -23,7 +23,7 @@ def status(request, query):
     if created or qobj.status in [Query.INVALID, Query.ERROR] or True:
         #queue query
         try:
-            CrawlScholarTask.delay(query=query, number=10, qobj=qobj)
+            #CrawlScholarTask.delay(query=query, number=10, qobj=qobj)
             FetchWokmwsTask.delay(query=query, qobj=qobj)
         except Exception, e:
             qobj.status = Query.ERROR

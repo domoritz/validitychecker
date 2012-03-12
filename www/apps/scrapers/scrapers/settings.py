@@ -18,3 +18,6 @@ USER_AGENT = '%s/%s' % (BOT_NAME, BOT_VERSION)
 ITEM_PIPELINES = [
     'www.apps.scrapers.scrapers.pipelines.DjangoArticlePipeline',
 ]
+
+# http://doc.scrapy.org/en/latest/topics/logging.html
+LOG_LEVEL = "WARNING"

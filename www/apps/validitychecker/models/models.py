@@ -42,6 +42,7 @@ class Article(models.Model):
 
     status = models.IntegerField(choices=QUERY_STATUS, default=UNKNOWN, null=True)
 
+    is_credible = models.NullBooleanField(default=False)
     times_cited_on_isi = models.IntegerField(default=0, null=True)
 
     last_updated = models.DateTimeField(auto_now=True)

@@ -59,7 +59,7 @@ class WokmwsSoapClient():
     def close(self):
         self.client['auth'].service.closeSession()
 
-    def search(self, query):
+    def search(self, query, number):
         qparams = {
             'databaseID' : 'WOS',
             'userQuery' : query,
@@ -74,7 +74,7 @@ class WokmwsSoapClient():
         }
 
         rparams = {
-            'count' : 5, # 1-100
+            'count' : number, # 1-100
             'firstRecord' : 1,
             'fields' : [{
                 'name' : 'Relevance',
@@ -103,10 +103,17 @@ def main():
 
     print "SID:", soap.SID
 
-    result = soap.search()
+    result = soap.search('TS=solar flare', 10)
+
+    print result
+
     for record in result.records:
         print record.title[0][1][0]
+        print [x for x in record.source if x[0]=='Published.BiblioYear'][0][1][0]
         print record.authors[0][1]
+        for author in record.authors[0][1]:
+            name = ' '.join(reversed(map(unicode.strip, author.split(','))))
+            print name
     print result.recordsFound
 
 if __name__ == "__main__":

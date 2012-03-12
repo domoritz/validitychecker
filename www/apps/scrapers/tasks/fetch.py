@@ -3,13 +3,17 @@
 
 """
 In contrast to crawling/scraping these tasks will use apis such as soap in order to retrieve the information
+
+The soap client will not save the data to the database so we have to do it here.
 """
 
 from celery.task import Task
 from celery.registry import tasks
 
-from www.apps.validitychecker.models import Query
+from www.apps.validitychecker.models import Query, Article, Author
 from www.apps.scrapers.utils.wokmws import WokmwsSoapClient
+
+from datetime import date
 
 class FetchTask(Task):
     def __init__(self):
@@ -48,10 +52,35 @@ class FetchWokmwsTask(FetchTask):
         soap = WokmwsSoapClient()
 
         # start searching
-        result = soap.search(query)
+        result = soap.search(query, number)
+
+        # process results
         for record in result.records:
-            print record.title[0][1][0]
-            print record.authors[0][1]
+            title = record.title[0][1][0]
+            year = int([x for x in record.source if x[0]=='Published.BiblioYear'][0][1][0])
+            authors = record.authors[0][1]
+
+            dat = date(year, 1, 1)
+
+            # add article
+            article, _ = Article.objects.get_or_create(title=title, defaults={'title': title, 'publish_date': dat})
+            article.is_credible = True # set credible because it's in the isi index
+            if article.status in [ Article.UNKNOWN ]:
+                # fetch isi cited data
+                pass
+            article.save()
+
+            # add author and article to author
+            for author in authors:
+                name = ' '.join(reversed(map(unicode.strip, author.split(',')))) # convert name from Doe, J to J Doe
+                author, _ = Author.objects.get_or_create(name=name)
+                author.articles.add(article)
+                author.save()
+
+            # add article to query
+            qobj.articles.add(article)
+            qobj.save()
+
         print result.recordsFound
 
 tasks.register(FetchWokmwsTask)
