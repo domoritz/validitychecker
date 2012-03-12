@@ -20,7 +20,7 @@ def status(request, query):
     #c = CrawlScholarTask()
     #c.run(query=query, number=10, qobj=qobj)
 
-    if created or qobj.status in [Query.INVALID, Query.ERROR] or True:
+    if created or qobj.status in [Query.INVALID]:
         #queue query
         try:
             #CrawlScholarTask.delay(query=query, number=10, qobj=qobj)
@@ -32,7 +32,7 @@ def status(request, query):
 
     qobj = Query.objects.get(query__iexact=query)
 
-    querystatus = Query.QUERY_STATUS[int(qobj.status)]
+    querystatus = Query.QUERY_STATUS[int(qobj.status)][1]
     querymessage = qobj.message
 
     statusdict = {

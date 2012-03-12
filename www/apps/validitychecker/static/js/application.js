@@ -2,8 +2,16 @@
 
 */
 
+Goggles = {}
+
 $(document).ready(function() {
-	tagcloud();
+	// initialize redirect
+	// it will redirect when results are ready
+	Goggles.redirect.init();
+
+	// initializes the tagcloud
+	// data comes from django backend
+	Goggles.tagcloud.init();
 });
 
 

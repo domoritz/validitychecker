@@ -1,16 +1,10 @@
-from django.core.urlresolvers import reverse
-from django.db.models import F, Count, Sum
-from django.http import HttpResponse
+from django.db.models import Count
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.views.decorators.csrf import csrf_exempt
-from random import shuffle, seed
 
-from www.apps.validitychecker.views import results
+from www.apps.validitychecker.models import Author
 
-from www.apps.validitychecker.models import Query, Article, Author
-from www.utils import parsers, IsiHandler, gviz_api
-import urllib
+from www.apps.validitychecker.utils import gviz_api
 
 def statistics(request):
     description = {"publications": ("number", "Publications"),
@@ -23,4 +17,4 @@ def statistics(request):
 
     return render_to_response('statistics.html',
                               {'scatter': json },
-                              context_instance=RequestContext(request, dict(target=reverse(results))))
+                              context_instance=RequestContext(request))

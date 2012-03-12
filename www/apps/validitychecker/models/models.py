@@ -19,16 +19,18 @@ class Article(models.Model):
     UNKNOWN = 0
     QUEUED = 1
     RUNNING = 2
-    ACCEPTED = 3
-    REJECTED = 4
-    INVALID = 5
-    ERROR = 6
+    COMPLETE = 3
+    INCOMPLETE = 4
+    REJECTED = 5
+    INVALID = 6
+    ERROR = 7
 
     QUERY_STATUS = (
         (UNKNOWN, 'Unknown'),
         (QUEUED, 'Queued'),
         (RUNNING, 'Running'),
-        (ACCEPTED, 'Accepted'),
+        (COMPLETE, 'Complete and Finished'),
+        (INCOMPLETE, 'Incomplete'),
         (REJECTED, 'Rejected'),
         (INVALID, 'Invalid'),
         (ERROR, 'Error'),
@@ -38,7 +40,7 @@ class Article(models.Model):
     snippet = models.TextField(null=True, blank=True)
     publish_date = models.DateField('date published')
     source = models.CharField(max_length=2048, null=True, blank=True)
-    url = models.CharField(max_length=255)
+    url = models.CharField(max_length=255, null=True, blank=True)
 
     status = models.IntegerField(choices=QUERY_STATUS, default=UNKNOWN, null=True)
 
@@ -75,8 +77,8 @@ class Query(models.Model):
     )
 
     query = models.CharField(max_length=255)
-    articles = models.ManyToManyField('Article', verbose_name="articles matching this query", null=True, blank=True)
-    count = models.IntegerField(verbose_name="how often query has been used", default=0)
+    articles = models.ManyToManyField('Article', null=True, blank=True, verbose_name="articles matching this query")
+    count = models.IntegerField(default=0, verbose_name="how often query has been used")
 
     status = models.IntegerField(choices=QUERY_STATUS, default=UNKNOWN)
     message = models.CharField(max_length=2048, null=True, blank=True)
@@ -87,7 +89,7 @@ class Query(models.Model):
         return u'%s' % str(self)
 
     def __str__(self):
-        return ' - '.join([self.query, self.QUERY_STATUS[self.status][1]])
+        return self.query
 
     class Meta:
         app_label= 'validitychecker'

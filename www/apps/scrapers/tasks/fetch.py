@@ -73,7 +73,7 @@ class FetchWokmwsTask(FetchTask):
             # add author and article to author
             for author in authors:
                 name = ' '.join(reversed(map(unicode.strip, author.split(',')))) # convert name from Doe, J to J Doe
-                author, _ = Author.objects.get_or_create(name__iexact=name)
+                author, _ = Author.objects.get_or_create(name=name)
                 author.articles.add(article)
                 author.save()
 

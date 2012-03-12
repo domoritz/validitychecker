@@ -13,9 +13,9 @@
 
     <form class="search" method="get" action="{{ target }}">
         <fieldset>
-            <label for="q">
+            <label for="query">
                 <span class="visuallyhidden">{% trans "Climate science theory" %}</span>
-                <input id="q" name="q" required autofocus placeholder="{% trans "Enter a theory" %}" type="search" />
+                <input id="query" name="query" required autofocus placeholder="{% trans "Enter a theory" %}" type="search" />
             </label>
             <input type="submit" value="{% trans "Search" %}" />
         </fieldset>
