@@ -1,5 +1,5 @@
 from django.core.urlresolvers import reverse
-from django.db.models import F, Count, Sum
+from django.db.models import F, Count, Sum, Q
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
@@ -15,77 +15,33 @@ from www.apps.validitychecker.views import *
 from www.apps.validitychecker.models import Query, Article, Author
 from www.utils import parsers, IsiHandler, gviz_api
 
-def results(request):
-    if 'q' in request.GET:
-        query = request.GET['q']
+def results(request, query):
 
-        #save query to db
-        qobj, created = Query.objects.get_or_create(query=query, defaults={'query':query, 'number':0})
-        qobj.number = F('number') + 1
-        qobj.save()
+    qobj = Query.objects.get(query__iexact=query)
 
-        #query google scholar
-        googleScholar = parsers.google_scholar_parser(query)
+    if qobj.status in [Query.FINISHED]:
 
-        newArticles = []
-
-        #write to db
-        articleType, created = Datatype.objects.get_or_create(name='article', defaults={'name':'article'})
-        for entry in googleScholar:
-            article, created = Article.objects.get_or_create(
-                title=entry['title'],
-                defaults={
-                    'url':entry['url'],
-                    'publish_date':entry['publish_date'],
-                    'title':entry['title'],
-                    'data_type':articleType,
-                    'abstract':entry['abstract']
-                })
-            if created:
-                #prepare new articles that have to be
-                newArticles.append(article)
-            for authorName in entry['authors']:
-                author, created = Author.objects.get_or_create(name=authorName, defaults={'name':authorName})
-                author.articles.add(article)
-                author.save()
-                #print author.name
-                #for x in author.articles.all():
-                #    print x.title
-
-        titles = [x['title'] for x in googleScholar]
-
-        #calculate isi cites for new articles
-        calculateIsiCites(newArticles)
-
-        calcISIForUnratedAuthors()
-
-        resultset = get_authors_and_articles_from_db(titles)
-
-        for author, articles in resultset:
-            author.url = urllib.quote_plus(author.name)
-        #resultset = get_fake_results(query)
+        resultset = authors_and_articles_for_query(qobj)
 
         return render_to_response('results.html',
                                   context_instance=RequestContext(request, dict(
-                                  target=reverse(results), results=resultset, query=query)))
+                                  results=resultset, query=query)))
     else:
         return # 300 /index
 
-def calculateIsiCites(newArticles):
-    #fetch data for new articles
-    for article in newArticles:
-        IsiHandler.refreshArticles(article)
+def authors_and_articles_for_query(qobj):
+    articles = qobj.articles.all() # articles for query
 
-def calcISIForUnratedAuthors():
-    for author in get_unrated_authors():
-        author.isi_score = IsiHandler.calcISIScoreWithArticles(author.name,author.articles.values_list('title', flat=True))
-        author.save()
-
-def get_unrated_authors():
-    """
-    Get all the authors that have no ISI-Score yet
-    """
-    return Author.objects.filter(isi_score=None)
+    # add .prefetch_related('articles') if supported by dango version
+    authors = Author.objects.filter(articles__in=articles)\
+        .annotate(isi_cites=Sum('articles__times_cited_on_isi'))\
+        .annotate(number_articles=Count('articles'))\
+        .order_by('-number_articles').distinct()[:200]
+    for author in authors:
+        articles_by_author = author.articles.filter(id__in=articles).order_by('-publish_date').all()
+        tpl = (author, articles_by_author)
+        tpl[0].score = author.number_articles
+        yield tpl
 
 def get_authors_and_articles_from_db(titles):
     """
@@ -103,12 +59,6 @@ def get_authors_and_articles_from_db(titles):
         ret.append(tmp)
     ret = sorted(ret, key=lambda elem: -elem[0].score)
     return ret
-
-def get_unrated_authors():
-    """
-    Get all the authors that have no ISI-Score yet
-    """
-    return Author.objects.filter(isi_score=None)
 
 @csrf_exempt
 def get_score(request):

@@ -16,5 +16,4 @@ def index(request):
 
     return render_to_response('home.html',
                               { 'popular_queries': popular_queries },
-                              context_instance=RequestContext(request, dict(
-                              target=reverse(results.results))))
+                              context_instance=RequestContext(request, dict()))

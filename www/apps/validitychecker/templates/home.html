@@ -25,7 +25,7 @@
         <h2>{% trans "Popular searches" %}</h2>
         <ul>
             {% for query in popular_queries %}
-            <li value="{{ query.number}}"><a href="{{ target }}?q={{ query.url }}">{{ query.query }}</a></li>
+            <li value="{{ query.number}}"><a href="{% url results-view query=query.url %}">{{ query.query }}</a></li>
             {% endfor %}
         </ul>
     </div>

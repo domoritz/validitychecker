@@ -15,7 +15,7 @@ def status(request, query):
     see 'class Query' for more information
     """
 
-    qobj, created = Query.objects.get_or_create(query=query, defaults={'query':query})
+    qobj, created = Query.objects.get_or_create(query__iexact=query, defaults={'query':query})
 
     #c = CrawlScholarTask()
     #c.run(query=query, number=10, qobj=qobj)
@@ -24,13 +24,13 @@ def status(request, query):
         #queue query
         try:
             #CrawlScholarTask.delay(query=query, number=10, qobj=qobj)
-            FetchWokmwsTask.delay(query=query, qobj=qobj)
+            FetchWokmwsTask.delay(query=query, qobj=qobj, number=100)
         except Exception, e:
             qobj.status = Query.ERROR
             qobj.message = str(e)
             qobj.save()
 
-    qobj = Query.objects.get(query=query)
+    qobj = Query.objects.get(query__iexact=query)
 
     querystatus = Query.QUERY_STATUS[int(qobj.status)]
     querymessage = qobj.message

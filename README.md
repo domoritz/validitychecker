@@ -98,8 +98,6 @@ If you want to run a scrapy spider or debug scrapy, use this command:
 
 ## Team
 
-### Version 2
-* [Dominik Moritz](https://github.com/domoritz/)
 
 ### Backend
 * [Robert Lehmann](https://github.com/lehmannro/)
@@ -110,13 +108,14 @@ If you want to run a scrapy spider or debug scrapy, use this command:
 ### Frontend
 * [David Owens](https://github.com/fineartdavid/)
 * [Norman Rzepka](https://github.com/normanrz/)
+* [Dominik Moritz](https://github.com/domoritz/)
 
 ### Design
 * [Milena Glim](https://github.com/milenskaya/)
 
 ## Stuff we used
 * [Google Scholar](http://scholar.google.com/)
-* [ISI Web Knowledge](http://apps.isiknowledge.com/)
+* [ISI Web of Knowledge](http://apps.isiknowledge.com/)
 * [Arvo Font](http://www.fontsquirrel.com/fonts/arvo)
 * ...
 
