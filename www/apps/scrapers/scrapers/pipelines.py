@@ -19,7 +19,7 @@ class DjangoArticlePipeline(object):
 
         if not qobj:
             # this happens if you use scrapy from the command line
-            qobj, _ = Query.objects.get_or_create(query=spider.query)
+            qobj, _ = Query.objects.get_or_create(query__iexact=spider.query)
 
         try:
             # save article
@@ -30,7 +30,7 @@ class DjangoArticlePipeline(object):
             # we already have the article in the database
             print e
             print item['title']
-            djangoObj = Article.objects.get(title=item['title'])
+            djangoObj = Article.objects.get(title__iexact=item['title'])
             #raise DropItem(e)
 
 
@@ -44,7 +44,7 @@ class DjangoArticlePipeline(object):
             name = name.strip('')
             name = name.strip(u'…')
             if name not in ['']:
-                author, _ = Author.objects.get_or_create(name=name)
+                author, _ = Author.objects.get_or_create(name__iexact=name)
                 author.articles.add(djangoObj)
                 author.save()
 

@@ -8,6 +8,7 @@ wokwms = web of knowledge web services
 from suds.client import Client
 from suds.transport.http import HttpTransport
 import urllib2
+import datetime
 
 class HTTPSudsPreprocessor(urllib2.BaseHandler):
     def __init__(self, SID):
@@ -59,11 +60,19 @@ class WokmwsSoapClient():
     def close(self):
         self.client['auth'].service.closeSession()
 
-    def search(self, query, number):
+    def search(self, query, number, first=1):
+        # search only the last 10 years
+        today = datetime.date.today().isoformat()
+        tenYearsAgo = (datetime.date.today() - datetime.timedelta(10*365)).isoformat()
+
         qparams = {
             'databaseID' : 'WOS',
             'userQuery' : query,
             'queryLanguage' : 'en',
+            'timeSpan' : {
+                'begin' : tenYearsAgo,
+                'end' : today,
+            },
             'editions' : [{
                 'collection' : 'WOS',
                 'edition' : 'SCI',
@@ -75,7 +84,7 @@ class WokmwsSoapClient():
 
         rparams = {
             'count' : number, # 1-100
-            'firstRecord' : 1,
+            'firstRecord' : first,
             'fields' : [{
                 'name' : 'Relevance',
                 'sort' : 'D',
@@ -103,18 +112,18 @@ def main():
 
     print "SID:", soap.SID
 
-    result = soap.search('TS=solar flare', 10)
+    result = []
+    for x in range(1,3000,100):
+        if len(result) and x > result[0].recordsFound or x > 500:
+            break
+        result.append(soap.search(query='TS=solar flare', number=100, first=x))
+        print x, len(result), len(result[-1])
 
-    print result
-
-    for record in result.records:
+    for record in result[0].records:
         print record.title[0][1][0]
-        print [x for x in record.source if x[0]=='Published.BiblioYear'][0][1][0]
-        print record.authors[0][1]
-        for author in record.authors[0][1]:
-            name = ' '.join(reversed(map(unicode.strip, author.split(','))))
-            print name
-    print result.recordsFound
+        #print [x for x in record.source if x[0]=='Published.BiblioYear'][0][1][0]
+        #print record.authors[0][1]
+    print "{} of {}".format(sum([len(r.records) for r in result]), result[0].recordsFound)
 
 if __name__ == "__main__":
     main()

@@ -63,7 +63,7 @@ class FetchWokmwsTask(FetchTask):
             dat = date(year, 1, 1)
 
             # add article
-            article, _ = Article.objects.get_or_create(title=title, defaults={'title': title, 'publish_date': dat})
+            article, _ = Article.objects.get_or_create(title__iexact=title, defaults={'title': title, 'publish_date': dat})
             article.is_credible = True # set credible because it's in the isi index
             if article.status in [ Article.UNKNOWN ]:
                 # fetch isi cited data
@@ -73,7 +73,7 @@ class FetchWokmwsTask(FetchTask):
             # add author and article to author
             for author in authors:
                 name = ' '.join(reversed(map(unicode.strip, author.split(',')))) # convert name from Doe, J to J Doe
-                author, _ = Author.objects.get_or_create(name=name)
+                author, _ = Author.objects.get_or_create(name__iexact=name)
                 author.articles.add(article)
                 author.save()
 
