@@ -150,17 +150,20 @@ h1 a {
 form.search {
 	input {
 		border: 1px solid #666;
-		padding: .5em;
+		padding: .5em .5em .4em .5em;
 		float: left;
 		font-size: 1.3em;
 		-webkit-appearance:none;
 	}
 
 	input[type=search] {
-		background: #fff;
+		background-color: #fff;
 		@include rounded(top-left, 5px);
 		@include rounded(bottom-left, 5px);
 
+		&.working{
+			background: #fff url(../images/activity-indicator.png) no-repeat 98% center;
+		}
 		&:focus {
 			border-color: rgba(0, 113, 188, 0.8);
 			box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.1) inset, 0 0 10px rgba(0, 113, 188, 0.6);
@@ -258,7 +261,12 @@ ul#results, ul.articles {
 .results form.search,
 .statistics form.search {
 	margin-top: 8em;
-	margin-bottom: 3em;
+	margin-bottom: 2em;
+}
+
+.query-for-results {
+	margin-bottom: 2em;
+	color: $gray;
 }
 
 #results {
@@ -439,7 +447,7 @@ margin-right: 8px;
 	}
 
 	.content {
-		margin: 3em 6em 2em 7.5em;
+		margin: 3em 4em 2em 5.5em;
 	}
 
 	form.search input[type=search] {

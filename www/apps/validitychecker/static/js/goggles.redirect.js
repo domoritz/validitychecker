@@ -17,6 +17,7 @@ Goggles.redirect = (function() {
 	}
 
 	function check(query) {
+		$('#query').addClass('working');
 		$.ajax({
 			url:'/status/'+query,
 			dataType: 'json',
@@ -28,6 +29,9 @@ Goggles.redirect = (function() {
 					window.setTimeout(function () {
 						check(query);
 					}, 1000);
+				} else {
+					// error...
+					$('#query').removeClass('working');
 				}
 			}
 		});

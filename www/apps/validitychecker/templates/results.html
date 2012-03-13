@@ -1,47 +1,52 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load i18n %}
 
 {% block body_classes %}class="results"{% endblock %}
 
+{% block extra_title %} - Results for: {{ query }}{% endblock %}
+
 {% block content %}
 <div class="content">
-<form class="search" method="get" action="{{ target }}">
-    <fieldset>
-        <label for="q">
-            <span class="visuallyhidden">{% trans "Climate science theory" %}</span>
-               <input id="q" name="q" required placeholder="{% trans "Enter a theory" %}" type="search" />
-        </label>
-        <input type="submit" value="{% trans "Search" %}" />
-    </fieldset>
-</form>
+	<form class="search" method="get" action="{{ target }}">
+		<fieldset>
+			<label for="query">
+				<span class="visuallyhidden">{% trans "Climate science theory" %}</span>
+				<input id="query" name="query" class="" value="{{ query }}" required placeholder="{% trans "Enter a theory" %}" type="search" />
+			</label>
+			<input type="submit" value="{% trans "Search" %}" />
+		</fieldset>
+	</form>
 
-<div class="clearfix"></div>
-<ol id="results">
-    {% for author, articles in results %}
-    <li>
-        <div class="author-info">
-            <h2 class="author-name"><a href="{% url results-view query=author.name %}">{{ author.name }}</a></h2>
-            <p class="author-meta">
-            {% blocktrans with score=author.score %}Goggles Score: {{ score }}{% endblocktrans %}
-            &bull;
-            {% blocktrans with count=author.articles.count %}{{ count }} articles published{% endblocktrans %}
-            <span class="actions">
-            &bull;
-            <a href="http://google.com/search?q={{ author.name|urlencode }}">{% blocktrans %}Search{% endblocktrans %}</a>
-            </span>
-            </p>
-        </div>
-        <ul class="articles">
-            {% for article in articles %}
-            <li>
-                <h3><a href="{{ article.url }}">{{ article.title }} &bull; {{ article.publish_date|date:_("M Y") }}</a></h3>
-                <div class="snippet">{{ article.abstract }}</div>
-            </li>
-            {% endfor %}
-        </ul>
-    </li>
-    {% endfor %}
-</ol>
+	<div class="clearfix"></div>
+	<div class="query-for-results">{% blocktrans%}Showing results for{% endblocktrans %} <strong>{{ query }}</strong></div>
+	<ol id="results">
+		{% for author, articles in results %}
+		<li>
+		<div class="author-info">
+			<h2 class="author-name"><a href="{% url results-view query=author.name %}">{{ author.name }}</a></h2>
+			<p class="author-meta">
+			{% blocktrans with score=author.score %}Goggles Score: {{ score }}{% endblocktrans %}
+			&bull;
+			{% blocktrans with count=author.articles.count %}{{ count }} articles published{% endblocktrans %}
+			<span class="actions">
+				&bull;
+				<a href="http://google.com/search?q={{ author.name|urlencode }}">{% blocktrans %}Search{% endblocktrans %}</a>
+			</span>
+			</p>
+		</div>
+		<ul class="articles">
+			{% for article in articles %}
+			<li>
+			<h3><a href="{{ article.url }}">{{ article.title }} &bull; {{ article.publish_date|date:_("Y") }}</a></h3>
+			{% if  article.snippet %}
+			<div class="snippet">{{ article.snippet }}</div>
+			{% endif %}
+			</li>
+			{% endfor %}
+		</ul>
+		</li>
+		{% endfor %}
+	</ol>
 </div>
 
 {% endblock %}

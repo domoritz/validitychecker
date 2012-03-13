@@ -3,31 +3,33 @@
 
 {% block body_classes %}class="home"{% endblock %}
 
+{% block extra_title %} - Home{% endblock %}
+
 {% block content %}
 <div class="content">
-    <div class="sell">
-        <h2>{% trans "Protect your brain from climate fiction." %}</h2>
-        <p>{% trans "With so many people talking about climate change it can be hard to separate fact from fiction." %}</p>
-        <p>{% trans "Climate Goggles help you to find the truth from the world's most respected scientists." %}</p>
-    </div>
+	<div class="sell">
+		<h2>{% trans "Protect your brain from climate fiction." %}</h2>
+		<p>{% trans "With so many people talking about climate change it can be hard to separate fact from fiction." %}</p>
+		<p>{% trans "Climate Goggles help you to find the truth from the world's most respected scientists." %}</p>
+	</div>
 
-    <form class="search" method="get" action="{{ target }}">
-        <fieldset>
-            <label for="query">
-                <span class="visuallyhidden">{% trans "Climate science theory" %}</span>
-                <input id="query" name="query" required autofocus placeholder="{% trans "Enter a theory" %}" type="search" />
-            </label>
-            <input type="submit" value="{% trans "Search" %}" />
-        </fieldset>
-    </form>
+	<form class="search" method="get" action="{{ target }}">
+		<fieldset>
+			<label for="query">
+				<span class="visuallyhidden">{% trans "Climate science theory" %}</span>
+				<input id="query" name="query" class="" required autofocus placeholder="{% trans "Enter a theory" %}" type="search" />
+			</label>
+			<input type="submit" value="{% trans "Search" %}" />
+		</fieldset>
+	</form>
 
-    <div class="popular">
-        <h2>{% trans "Popular searches" %}</h2>
-        <ul>
-            {% for query in popular_queries %}
-            <li value="{{ query.count}}"><a href="{% url results-view query=query.url %}">{{ query.query }}</a></li>
-            {% endfor %}
-        </ul>
-    </div>
+	<div class="popular">
+		<h2>{% trans "Popular searches" %}</h2>
+		<ul>
+			{% for query in popular_queries %}
+			<li value="{{ query.count }}"><a href="{% url results-view query=query.url %}">{{ query.query }}</a></li>
+			{% endfor %}
+		</ul>
+	</div>
 </div>
 {% endblock %}
