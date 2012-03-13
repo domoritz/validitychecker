@@ -10,10 +10,10 @@ The soap client will not save the data to the database so we have to do it here.
 from celery.task import Task
 from celery.registry import tasks
 
-from www.apps.validitychecker.models import Query, Article, Author
+from www.apps.validitychecker.models import Query, Article, Author, SID
 from www.apps.scrapers.utils.wokmws import WokmwsSoapClient
 
-from datetime import date
+from datetime import date, datetime
 
 class FetchTask(Task):
     def __init__(self):
@@ -33,10 +33,10 @@ class FetchTask(Task):
         self.qobj.save()
 
 class FetchWokmwsTask(FetchTask):
-    """
-    Fetch from web of knowledge web services
-    """
     def run(self, query="solar flares", number = 10, qobj=None, **kwargs):
+        """
+        Fetch from web of knowledge web services
+        """
         self.qobj = qobj
 
         logger = self.get_logger(**kwargs)
@@ -45,11 +45,32 @@ class FetchWokmwsTask(FetchTask):
         self.qobj.status = Query.QUEUED
         self.qobj.save()
 
-
+        # build query accoding to wokws api
         query = 'TS='+query
 
-        # initialize client
-        soap = WokmwsSoapClient()
+        # get session id from db
+        # not getting a new sid for each query avoids throttling
+        sessionid = SID.objects.order_by('-created_at')
+
+        # lazy invalid function, invalid if older than 30 minutes
+        valid = lambda: (datetime.now() - sessionid[0].created_at).seconds/60 < 30
+
+        if sessionid and valid():
+            # get latest session id, avoid problems when no id is defined
+            sessionid = sessionid[0].sid
+
+            # initialize client with SID!
+            soap = WokmwsSoapClient(sessionid)
+            logger.warning("SID from db: %s" % sessionid)
+        else:
+            # without SID/ new sid
+            soap = WokmwsSoapClient()
+
+            # create new sid object
+            s = SID(sid = soap.SID)
+            s.save()
+
+            logger.warning("new authentication \n got SID: %s" % soap.SID)
 
         # start searching
         result = soap.search(query, number)

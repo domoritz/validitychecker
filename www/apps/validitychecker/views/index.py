@@ -4,11 +4,10 @@ from django.template import RequestContext
 from random import shuffle, seed
 import urllib
 
-from www.apps.validitychecker.views import results
 from www.apps.validitychecker.models import Query
 
 def index(request):
-    popular_queries = list(Query.objects.order_by('-count')[:15])
+    popular_queries = list(Query.objects.order_by('-count')[:20])
     seed(42)
     shuffle(popular_queries)
     for q in popular_queries:
@@ -16,4 +15,4 @@ def index(request):
 
     return render_to_response('home.html',
                               { 'popular_queries': popular_queries },
-                              context_instance=RequestContext(request, dict()))
+                              context_instance=RequestContext(request))

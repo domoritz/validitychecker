@@ -4,6 +4,8 @@
 from django.http import HttpResponse
 from django.utils import simplejson
 
+import urllib
+
 from www.apps.validitychecker.views import *
 from www.apps.validitychecker.models import Query
 
@@ -14,6 +16,8 @@ def status(request, query):
     returns the status of a query
     see 'class Query' for more information
     """
+
+    query = urllib.unquote_plus(query)
 
     qobj, created = Query.objects.get_or_create(query__iexact=query, defaults={'query':query})
 
@@ -38,7 +42,7 @@ def status(request, query):
     statusdict = {
         'status' : querystatus,
         'message' : querymessage,
-        'resulturl' : '/results/'+query,
+        'resulturl' : '/results/'+urllib.quote_plus(query),
     }
 
     return HttpResponse(simplejson.dumps(statusdict), mimetype='application/json')

@@ -26,24 +26,31 @@ class WokmwsSoapClient():
     main steps you have to do:
         soap = WokmwsSoapClient()
         results = soap.search(...)
+        #soap.close()
     """
-    def __init__(self):
+    def __init__(self,  SID=None):
         self.url = self.client = {}
         self.SID = ''
 
         self.url['auth'] = 'http://search.isiknowledge.com:2003/esti/wokmws/ws/WOKMWSAuthenticate?wsdl'
         self.url['search'] = 'http://search.isiknowledge.com:2003/esti/wokmws/ws/WokSearchLite?wsdl'
 
-        self.prepare()
+        # use sid if provided
+        if SID:
+            self.SID=SID
+            self.initAuthClient()
+            self.initSearchClient()
+        else:
+            self.initAuthClient()
+            self.authenticate()
+            self.initSearchClient()
 
     def __del__(self):
-        self.close()
-
-    def prepare(self):
-        """does all the initialization we need for a request"""
-        self.initAuthClient()
-        self.authenticate()
-        self.initSearchClient()
+        """
+        you can enable autoclosing here
+        """
+        pass
+        #self.close()
 
     def initAuthClient(self):
         self.client['auth'] = Client(self.url['auth'])
@@ -101,6 +108,10 @@ logging.getLogger('suds.client').setLevel(logging.DEBUG)
 logging.getLogger('suds.transport').setLevel(logging.DEBUG)
 #"""
 
+from twisted.internet import reactor
+from twisted.internet import defer
+
+@defer.inlineCallbacks
 def main():
     soap = WokmwsSoapClient()
 
@@ -125,6 +136,12 @@ def main():
         #print record.authors[0][1]
     print "{} of {}".format(sum([len(r.records) for r in result]), result[0].recordsFound)
 
+    yield None
+
+    soap.close()
+
 if __name__ == "__main__":
-    main()
+    reactor.callLater(0, main)
+    reactor.run()
+
 

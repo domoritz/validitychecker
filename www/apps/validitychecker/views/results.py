@@ -3,14 +3,18 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import get_object_or_404
+
+import urllib
 
 from www.apps.validitychecker.views import *
-
 from www.apps.validitychecker.models import Query, Article, Author
 
 def results(request, query):
 
-    qobj = Query.objects.get(query__iexact=query)
+    query = urllib.unquote_plus(query)
+
+    qobj = get_object_or_404(Query, query__iexact=query)
 
     if qobj.status in [Query.FINISHED]:
 

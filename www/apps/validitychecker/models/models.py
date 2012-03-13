@@ -93,3 +93,17 @@ class Query(models.Model):
 
     class Meta:
         app_label= 'validitychecker'
+
+class SID(models.Model):
+    sid = models.CharField(max_length=255, verbose_name="SID for wokws")
+    last_updated = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __unicode__(self):
+        return u'%s' % str(self)
+
+    def __str__(self):
+        return self.sid
+
+    class Meta:
+        app_label= 'validitychecker'
