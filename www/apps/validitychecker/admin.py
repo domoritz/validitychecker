@@ -1,5 +1,5 @@
 from django.contrib import admin
-from www.apps.validitychecker.models import Query, Article, Author, SID
+from www.apps.validitychecker.models import Query, Article, Author, KeyValue
 
 def make_query_invalid(modeladmin, request, queryset):
     queryset.update(status=Query.INVALID)
@@ -37,4 +37,4 @@ admin.site.register(Author, AuthorAdmin)
 admin.site.register(Article, ArticleAdmin)
 admin.site.register(Query, QueryAdmin)
 
-admin.site.register(SID)
+admin.site.register(KeyValue)
