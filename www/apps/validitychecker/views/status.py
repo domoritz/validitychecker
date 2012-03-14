@@ -9,7 +9,7 @@ import urllib
 from www.apps.validitychecker.views import *
 from www.apps.validitychecker.models import Query
 
-from www.apps.scrapers.tasks import CrawlScholarTask, FetchWokmwsTask
+from www.apps.scrapers.tasks import CrawlScholarTask, FetchWokmwsTask, ScrapeScholarTask
 
 def status(request, query):
     """
@@ -28,7 +28,9 @@ def status(request, query):
         #queue query
         try:
             #CrawlScholarTask.delay(query=query, number=10, qobj=qobj)
-            FetchWokmwsTask.delay(query=query, qobj=qobj, number=100)
+            #ScrapeScholarTask.delay(query=query, number=10, qobj=qobj)
+            FetchWokmwsTask.delay(query=query, number=100, qobj=qobj)
+
         except Exception, e:
             qobj.status = Query.ERROR
             qobj.message = str(e)

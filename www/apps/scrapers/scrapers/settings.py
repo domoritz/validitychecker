@@ -20,4 +20,4 @@ ITEM_PIPELINES = [
 ]
 
 # http://doc.scrapy.org/en/latest/topics/logging.html
-LOG_LEVEL = "WARNING"
+LOG_LEVEL = "DEBUG"
