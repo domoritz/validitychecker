@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from django.db.models import F, Count, Sum, Q
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
@@ -33,7 +36,9 @@ def authors_and_articles_for_query(qobj):
     """
     returns the matching articles and authors from the db that are credible
     """
-    articles = qobj.articles.all() # articles for query
+
+    # get credible articles for query
+    articles = qobj.articles.filter(is_credible=True).all() # articles for query
 
     # add .prefetch_related('articles') if supported by dango version
     authors = Author.objects.filter(articles__in=articles)\
