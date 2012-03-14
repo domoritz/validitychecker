@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 # Import global settings to make it easier to extend settings.
 from django.conf.global_settings import *
 import os
@@ -161,6 +164,19 @@ CELERY_REDIS_DB = 0
 
 import djcelery
 djcelery.setup_loader()
+
+## Worker settings
+## If you're doing mostly I/O you can have more processes,
+## but if mostly spending CPU, try to keep it close to the
+## number of CPUs on your machine. If not set, the number of CPUs/cores
+## available will be used.
+## We have IO (network) so lets have a high number
+CELERYD_CONCURRENCY = 10
+
+def my_on_failure(self, exc, task_id, args, kwargs, einfo):
+    print("Oh no! Task failed: %r" % (exc, ))
+
+CELERY_ANNOTATIONS = {"*": {"on_failure": my_on_failure}}
 
 #==============================================================================
 # Scrapy
