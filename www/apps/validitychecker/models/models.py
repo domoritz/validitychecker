@@ -5,7 +5,7 @@ from django.db import models
 
 class Author(models.Model):
     articles = models.ManyToManyField('Article', verbose_name="articles the author published")
-    name = models.CharField(unique=True, max_length=60, verbose_name="full name of the author")
+    name = models.CharField(unique=True, max_length=60, blank=False, db_index=True, verbose_name="full name of the author")
     isi_score = models.IntegerField('ISI h-score', null=True, blank=True)
 
     def __unicode__(self):
@@ -36,7 +36,7 @@ class Article(models.Model):
         (ERROR, 'Error'),
     )
 
-    title = models.CharField(unique=True, max_length=255)
+    title = models.CharField(unique=True, max_length=255, blank=False, db_index=True)
     snippet = models.TextField(null=True, blank=True)
     publish_date = models.DateField('date published')
     source = models.CharField(max_length=2048, null=True, blank=True)
@@ -50,7 +50,7 @@ class Article(models.Model):
     last_updated = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
-        return u'%s' % str(self)
+        return u'%s' % self.title
 
     def __str__(self):
         return self.title
@@ -76,7 +76,7 @@ class Query(models.Model):
         (ERROR, 'Error'),
     )
 
-    query = models.CharField(max_length=255)
+    query = models.CharField(unique=True, max_length=255, blank=False, db_index=True)
     articles = models.ManyToManyField('Article', null=True, blank=True, verbose_name="articles matching this query")
     count = models.IntegerField(default=0, verbose_name="how often query has been used")
 
@@ -86,7 +86,7 @@ class Query(models.Model):
     last_updated = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
-        return u'%s' % str(self)
+        return u'%s' % self.query
 
     def __str__(self):
         return self.query
@@ -94,16 +94,18 @@ class Query(models.Model):
     class Meta:
         app_label= 'validitychecker'
 
-class SID(models.Model):
-    sid = models.CharField(max_length=255, verbose_name="SID for wokws")
+class KeyValue(models.Model):
+    key = models.CharField(unique=True, max_length=60, blank=False, db_index=True)
+    value = models.CharField(max_length=255, null=True, blank=True)
+
     last_updated = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __unicode__(self):
-        return u'%s' % str(self)
+        return u'%s' % ' - '.join([self.key, self.value])
 
     def __str__(self):
-        return self.sid
+        return ' - '.join([self.key, self.value])
 
     class Meta:
         app_label= 'validitychecker'
