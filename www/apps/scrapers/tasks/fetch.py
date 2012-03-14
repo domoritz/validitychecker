@@ -10,7 +10,7 @@ The soap client will not save the data to the database so we have to do it here.
 from celery.task import Task
 from celery.registry import tasks
 
-from www.apps.validitychecker.models import Query, Article, Author, SID
+from www.apps.validitychecker.models import Query, Article, Author, KeyValue
 from www.apps.scrapers.utils.wokmws import WokmwsSoapClient
 
 from datetime import date, datetime
@@ -33,6 +33,7 @@ class FetchTask(Task):
         self.qobj.save()
 
 class FetchWokmwsTask(FetchTask):
+
     def run(self, query="solar flares", number = 10, qobj=None, **kwargs):
         """
         Fetch from web of knowledge web services
@@ -50,14 +51,14 @@ class FetchWokmwsTask(FetchTask):
 
         # get session id from db
         # not getting a new sid for each query avoids throttling
-        sessionid = SID.objects.order_by('-created_at')
+        sobj, created = KeyValue.objects.get_or_create(key='SID')
 
         # lazy invalid function, invalid if older than 30 minutes
-        valid = lambda: (datetime.now() - sessionid[0].created_at).seconds/60 < 30
+        valid = lambda: (datetime.now() - sobj.created_at).seconds/60 < 30
 
-        if sessionid and valid():
+        if not created and valid():
             # get latest session id, avoid problems when no id is defined
-            sessionid = sessionid[0].sid
+            sessionid = sobj.value
 
             # initialize client with SID!
             soap = WokmwsSoapClient(sessionid)
@@ -67,15 +68,20 @@ class FetchWokmwsTask(FetchTask):
             soap = WokmwsSoapClient()
 
             # create new sid object
-            s = SID(sid = soap.SID)
-            s.save()
+            sobj.value = soap.SID
+            sobj.save()
 
-            logger.warning("new authentication \n got SID: %s" % soap.SID)
+            logger.warning("New authentication. Got SID: %s" % soap.SID)
 
         # start searching
         result = soap.search(query, number)
 
         # process results
+
+        if not hasattr(result, 'records'):
+            print "Nothing found"
+            return
+
         for record in result.records:
             title = record.title[0][1][0]
             year = int([x for x in record.source if x[0]=='Published.BiblioYear'][0][1][0])
@@ -99,8 +105,8 @@ class FetchWokmwsTask(FetchTask):
                 author.save()
 
             # add article to query
-            qobj.articles.add(article)
-            qobj.save()
+            self.qobj.articles.add(article)
+            self.qobj.save()
 
         print result.recordsFound
 
