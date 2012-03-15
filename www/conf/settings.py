@@ -173,6 +173,10 @@ djcelery.setup_loader()
 ## We have IO (network) so lets have a high number
 CELERYD_CONCURRENCY = 10
 
+CELERY_IMPORTS = ("celery.task.http", )
+
+CELERY_TASK_SERIALIZER = 'pickle'
+
 def my_on_failure(self, exc, task_id, args, kwargs, einfo):
     print("Oh no! Task failed: %r" % (exc, ))
 
