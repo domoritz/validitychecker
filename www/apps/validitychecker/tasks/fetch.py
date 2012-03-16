@@ -7,6 +7,8 @@ In contrast to crawling/scraping these tasks will use apis such as soap in order
 The soap client will not save the data to the database so we have to do it here.
 """
 
+from django.db import transaction
+
 from celery.task import task, subtask
 from celery import registry
 
@@ -14,6 +16,7 @@ from www.apps.validitychecker.models import Query, Article, Author, KeyValue
 
 from www.apps.validitychecker.utils.wokmws import WokmwsSoapClient
 from datetime import date, datetime
+import urllib
 
 @task(ignore_result=True, name='fetch data from soap api')
 def fetch_soap(query="solar flares", number = 10, qobj=None):
@@ -27,9 +30,6 @@ def fetch_soap(query="solar flares", number = 10, qobj=None):
     if qobj:
         qobj.status = Query.QUEUED
         qobj.save()
-
-    # build query accoding to wokws api
-    query = 'TS='+query
 
     # get session id from db
     # not getting a new sid for each query avoids throttling
@@ -62,6 +62,9 @@ def fetch_soap(query="solar flares", number = 10, qobj=None):
 @task(ignore_result=True, name='search soap')
 def search_soap(soap, qobj, query, number, callback=None):
 
+    # build query accoding to wokws api
+    query = 'TS='+query
+
     logger = search_soap.get_logger()
     logger.info("query: %s" % query)
 
@@ -73,6 +76,8 @@ def search_soap(soap, qobj, query, number, callback=None):
         # so best practice is to convert the subtask dict back
         # into a subtask object.
         subtask(callback).delay(qobj, result)
+    else:
+        return result
 
 @task(ignore_result=True, name='extract soap data')
 def extract_data(qobj, result, callback=None):
@@ -82,22 +87,25 @@ def extract_data(qobj, result, callback=None):
     else:
         print "Found:", result.recordsFound
 
-    records = []
+    results = []
     for record in result.records:
 
-        record = {}
-        record['title'] = record.title[0][1][0]
-        #record['url'] =
-        #record['snippet'] =
-        #record['source'] =
-        record['authors'] = record.authors[0][1]
-        record['publish_date'] = date(int([x for x in record.source if x[0]=='Published.BiblioYear'][0][1][0]), 1, 1)
+        result = {}
+        result['title'] = record.title[0][1][0]
+        #result['url'] =
+        #result['snippet'] =
+        #result['source'] =
+        result['authors'] = record.authors[0][1]
+        result['publish_date'] = date(int([x for x in record.source if x[0]=='Published.BiblioYear'][0][1][0]), 1, 1)
 
-        records.append(record)
+        results.append(result)
 
     if callback:
-        subtask(callback).delay(qobj, records)
+        subtask(callback).delay(qobj, results)
+    else:
+        return results
 
+@transaction.commit_on_success
 @task(ignore_result=True, name='store data from soap')
 def store_in_db(qobj, records):
     for record in records:
@@ -123,7 +131,3 @@ def store_in_db(qobj, records):
     if qobj:
         qobj.status = Query.FINISHED
         qobj.save()
-
-if __name__ == '__main__':
-    fetch()
-

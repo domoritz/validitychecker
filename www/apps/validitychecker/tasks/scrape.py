@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from django.db import transaction
+
 from celery.task import task, subtask
 from celery import registry
 
@@ -33,10 +35,9 @@ def scrape_scolar(query="solar flares", number = 10, qobj=None):
             'http://scholar.google.com/scholar?as_sdt=1&num='+str(number)+'&start='+str(2*number)+'&q='+query
             ]
 
-    url = urls[0]
-
-    # fetch_page -> parse_page -> store_in_db
-    fetch_page.delay(url, qobj, callback=subtask(parse_scholar_page,
+    for url in urls[:1]:
+        # fetch_page -> parse_page -> store_in_db
+        fetch_page.delay(url, qobj, callback=subtask(parse_scholar_page,
                                 callback=subtask(store_in_db)))
 
 @task(ignore_result=True, name='fetch content with urllib2')
@@ -45,7 +46,8 @@ def fetch_page(url, qobj, callback=None):
     logger = fetch_page.get_logger()
     logger.info("URL: %s" % url)
 
-    req = urllib2.Request(url=url)
+    headers = { 'User-Agent' : 'Mozilla/5.0' }
+    req = urllib2.Request(url=url, headers=headers)
     response = urllib2.urlopen(req)
     page = response.read()
 
@@ -54,6 +56,8 @@ def fetch_page(url, qobj, callback=None):
         # so best practice is to convert the subtask dict back
         # into a subtask object.
         subtask(callback).delay(url, page, qobj)
+    else:
+        return page
 
 @task(ignore_result=True, name='parse scholar page')
 def parse_scholar_page(url, page, qobj, callback=None):
@@ -101,12 +105,17 @@ def parse_scholar_page(url, page, qobj, callback=None):
 
     if callback:
         subtask(callback).delay(url, records, qobj)
+    else:
+        return records
 
+@transaction.commit_on_success
 @task(ignore_result=True, name='save scholar data to db')
 def store_in_db(url, records, qobj):
     for record in records:
         # add article
         article, _ = Article.objects.get_or_create(title=record['title'], defaults={'title': record['title'], 'publish_date': record['publish_date']})
+        article.url = record['url']
+        article.snippet = record['snippet']
         article.save()
 
         # add author and article to author
@@ -121,8 +130,5 @@ def store_in_db(url, records, qobj):
         qobj.save()
 
     if qobj:
-        qobj.status = Query.INCOMPLETE
+        #qobj.status = Query.FINISHED
         qobj.save()
-
-if __name__ == '__main__':
-    scrape()
