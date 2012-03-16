@@ -60,9 +60,9 @@ Run these three command in different sessions on your command line
     # run django
     python manage.py runserver
 
-If you want to run a scrapy spider or debug scrapy, use this command:
+#### Run tests
 
-    python manage.py scrapy
+    python manage.py test validitychecker -v 2
 
 
 ## Problem
