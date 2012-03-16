@@ -108,10 +108,6 @@ logging.getLogger('suds.client').setLevel(logging.DEBUG)
 logging.getLogger('suds.transport').setLevel(logging.DEBUG)
 #"""
 
-from twisted.internet import reactor
-from twisted.internet import defer
-
-@defer.inlineCallbacks
 def main():
     soap = WokmwsSoapClient()
 
@@ -141,7 +137,5 @@ def main():
     soap.close()
 
 if __name__ == "__main__":
-    reactor.callLater(0, main)
-    reactor.run()
-
+    main()
 

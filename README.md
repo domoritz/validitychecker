@@ -32,7 +32,9 @@ Just in case you have no idea how to get going here are the required commands fo
 * [SQLite](http://www.sqlite.org/) or any other relational database that is supported by django
 * [Redis](http://redis.io/) or rabbitMQ as a celery broker
 
-Full list of required Python packages can be found in devel-req.txt.
+Full list of required Python packages can be found in www/devel-req.txt. Install them with:
+
+    pip install -r www/devel-req.txt
 
 #### Installation
 This Version requires a little bit more work that version 1 since it is more powerful.
