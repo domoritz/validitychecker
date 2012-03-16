@@ -16,6 +16,9 @@ from www.apps.scrapers.utils.wokmws import WokmwsSoapClient
 from datetime import date, datetime
 
 class FetchTask(Task):
+
+    name = 'tasks.Fetch'
+
     def __init__(self):
         self.qobj = None
 

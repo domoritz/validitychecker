@@ -3,6 +3,9 @@
 
 """
 will crawl a website in order to get data about articles and authors
+
+
+the crawler will save the data to the database
 """
 
 from celery.task import Task
@@ -13,10 +16,11 @@ from scrapy import project, signals
 from scrapy.xlib.pydispatch import dispatcher
 from scrapy.crawler import CrawlerProcess, Crawler
 
+import os, urllib
+
 from www.apps.validitychecker.models import Query
 from www.apps.scrapers.scrapers.spiders import ScholarSpider, CiteseerXSpider
 
-import os
 os.environ.setdefault('SCRAPY_SETTINGS_MODULE', 'www.apps.scrapers.scrapers.settings')
 
 class CrawlTask(Task):
@@ -33,6 +37,8 @@ class CrawlTask(Task):
         self.qobj = qobj
         self.count = 0
 
+        query = urllib.unquote_plus(query)
+
         logger = self.get_logger(**kwargs)
         logger.info("Query: %s" % query)
 
@@ -47,7 +53,7 @@ class CrawlTask(Task):
         dispatcher.connect(self.catch_item, signal=signals.item_passed)
 
         # set up crawler
-        crawler = CrawlerProcess(settings)
+        crawler = Crawler(settings)
 
         if not hasattr(project, 'crawler'):
             crawler.install()
@@ -56,13 +62,14 @@ class CrawlTask(Task):
         # schedule spider
         spider = self.spiderclass(query=query, number=number, qobj=qobj)
         crawler.crawl(spider)
+        # crawler.engine.open_spider
 
         # start engine scrapy/twisted
         print "STARTING ENGINE"
         crawler.start()
         print "ENGINE STOPPED"
+        crawler.stop()
         print "Fetched %s articles(s)" % self.count
-        #crawler.stop()
 
     def on_success(self, retval, task_id, args, kwargs):
         self.qobj.status = Query.FINISHED
