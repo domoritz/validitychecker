@@ -28,7 +28,7 @@ def status(request, query):
     if created or qobj.status in [Query.INVALID]:
         #queue query
         try:
-            fetch_soap.delay(query=query, number=10, qobj=qobj)
+            #fetch_soap.delay(query=query, number=10, qobj=qobj)
             scrape_scolar.delay(query=query, number=10, qobj=qobj)
 
         except Exception, e:

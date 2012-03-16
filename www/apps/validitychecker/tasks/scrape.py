@@ -108,7 +108,7 @@ def parse_scholar_page(url, page, qobj, callback=None):
     else:
         return records
 
-@transaction.commit_on_success
+#@transaction.commit_on_success
 @task(ignore_result=True, name='save scholar data to db')
 def store_in_db(url, records, qobj):
     for record in records:
