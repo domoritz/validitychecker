@@ -15,7 +15,7 @@ from www.apps.validitychecker.models import Query, Article, Author, KeyValue
 from www.apps.validitychecker.utils.wokmws import WokmwsSoapClient
 from datetime import date, datetime
 
-@task(ignore_result=True, name='scrape')
+@task(ignore_result=True, name='fetch data from soap api')
 def fetch_soap(query="solar flares", number = 10, qobj=None):
 
     logger = fetch_soap.get_logger()
@@ -59,7 +59,7 @@ def fetch_soap(query="solar flares", number = 10, qobj=None):
     search_soap.delay(soap, qobj, query, number, callback=subtask(extract_data,
                                 callback=subtask(store_in_db)))
 
-@task(ignore_result=True)
+@task(ignore_result=True, name='search soap')
 def search_soap(soap, qobj, query, number, callback=None):
 
     logger = search_soap.get_logger()
@@ -74,7 +74,7 @@ def search_soap(soap, qobj, query, number, callback=None):
         # into a subtask object.
         subtask(callback).delay(qobj, result)
 
-@task(ignore_result=True)
+@task(ignore_result=True, name='extract soap data')
 def extract_data(qobj, result, callback=None):
     if not hasattr(result, 'records'):
         print "Nothing found"
@@ -98,7 +98,7 @@ def extract_data(qobj, result, callback=None):
     if callback:
         subtask(callback).delay(qobj, records)
 
-@task(ignore_result=True)
+@task(ignore_result=True, name='store data from soap')
 def store_in_db(qobj, records):
     for record in records:
         # add article

@@ -11,7 +11,7 @@ import re, urllib2, urllib
 from StringIO import StringIO
 from datetime import date
 
-@task(ignore_result=True, name='scrape')
+@task(ignore_result=True, name='scrape google scholar')
 def scrape_scolar(query="solar flares", number = 10, qobj=None):
 
     logger = scrape_scolar.get_logger()
@@ -39,7 +39,7 @@ def scrape_scolar(query="solar flares", number = 10, qobj=None):
     fetch_page.delay(url, qobj, callback=subtask(parse_scholar_page,
                                 callback=subtask(store_in_db)))
 
-@task(ignore_result=True)
+@task(ignore_result=True, name='fetch content with urllib2')
 def fetch_page(url, qobj, callback=None):
 
     logger = fetch_page.get_logger()
@@ -55,7 +55,7 @@ def fetch_page(url, qobj, callback=None):
         # into a subtask object.
         subtask(callback).delay(url, page, qobj)
 
-@task(ignore_result=True)
+@task(ignore_result=True, name='parse scholar page')
 def parse_scholar_page(url, page, qobj, callback=None):
     parser = etree.HTMLParser()
     tree = etree.parse(StringIO(page), parser)
@@ -102,7 +102,7 @@ def parse_scholar_page(url, page, qobj, callback=None):
     if callback:
         subtask(callback).delay(url, records, qobj)
 
-@task(ignore_result=True)
+@task(ignore_result=True, name='save scholar data to db')
 def store_in_db(url, records, qobj):
     for record in records:
         # add article

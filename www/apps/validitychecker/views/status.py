@@ -6,10 +6,8 @@ from django.utils import simplejson
 
 import urllib
 
-from www.apps.validitychecker.views import *
 from www.apps.validitychecker.models import Query
-
-from www.apps.scrapers.tasks import CrawlScholarTask, FetchWokmwsTask, ScrapeScholarTask
+from www.apps.validitychecker.tasks import fetch_soap, scrape_scolar
 
 def status(request, query):
     """
@@ -24,12 +22,14 @@ def status(request, query):
     #c = CrawlScholarTask()
     #c.run(query=query, number=10, qobj=qobj)
 
+    # starting reactor
+    #threaded_reactor()
+
     if created or qobj.status in [Query.INVALID]:
         #queue query
         try:
-            #CrawlScholarTask.delay(query=query, number=10, qobj=qobj)
-            #ScrapeScholarTask.delay(query=query, number=10, qobj=qobj)
-            FetchWokmwsTask.delay(query=query, number=100, qobj=qobj)
+            fetch_soap.delay(query=query, number=10, qobj=qobj)
+            scrape_scolar.delay(query=query, number=10, qobj=qobj)
 
         except Exception, e:
             qobj.status = Query.ERROR

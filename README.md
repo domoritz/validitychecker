@@ -52,7 +52,10 @@ Run these three command in different sessions on your command line
     redis-server /usr/local/etc/redis.conf
 
     # run celery
-    python manage.py celeryd -l INFO
+    python manage.py celeryd -l INFO -E
+    
+    # run celerycam for monitoring
+    python manage.py celerycam
 
     # run django
     python manage.py runserver

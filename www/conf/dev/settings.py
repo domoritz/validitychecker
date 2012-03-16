@@ -9,12 +9,6 @@ COMPRESS_ENABLED = False
 COMPRESS_OUTPUT_DIR = ''
 COMPRESS_OFFLINE = False
 
-
-#celery
-import logging
-logging.getLogger('celery.task.default').setLevel(pythonLogging.DEBUG)
-logging.getLogger().setLevel(pythonLogging.DEBUG)
-
 ADMINS = (
     ('You', 'your@email'),
 )
