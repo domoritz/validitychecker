@@ -17,8 +17,8 @@ class AuthorAdmin(admin.ModelAdmin):
     filter_horizontal = ('articles',)
 
 class ArticleAdmin(admin.ModelAdmin):
-    list_display   = ('title', 'publish_date', 'status', 'times_cited_on_isi', 'is_credible')
-    list_filter    = ('publish_date', 'status', 'is_credible')
+    list_display   = ('title', 'publish_date', 'state', 'times_cited_on_isi', 'is_credible')
+    list_filter    = ('publish_date', 'state', 'is_credible')
     ordering       = ('-title',)
     search_fields  = ('title',)
 
