@@ -173,20 +173,18 @@ djcelery.setup_loader()
 ## We have IO (network) so lets have a high number
 CELERYD_CONCURRENCY = 20
 
+CELERY_TRACK_STARTED = True
+
 CELERY_IMPORTS = ("celery.task.http", )
 
 CELERY_TASK_SERIALIZER = 'pickle'
 
-def my_on_failure(self, exc, task_id, args, kwargs, einfo):
-    print("Oh no! Task failed: %r" % (exc, ))
+#def my_on_failure(self, exc, task_id, args, kwargs, einfo):
+#    print("Oh no! Task failed: %r" % (exc, ))
 
-CELERY_ANNOTATIONS = {"*": {"on_failure": my_on_failure}}
+#CELERY_ANNOTATIONS = {"*": {"on_failure": my_on_failure}}
 
-#==============================================================================
-# Scrapy
-#==============================================================================
-
-os.environ['SCRAPY_SETTINGS_MODULE'] = 'www.apps.scrapers.scrapers.settings'
+TEST_RUNNER = 'djcelery.contrib.test_runner.CeleryTestSuiteRunner'
 
 #==============================================================================
 # Apps
