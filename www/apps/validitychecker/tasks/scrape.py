@@ -13,7 +13,7 @@ import re, urllib2, urllib
 from StringIO import StringIO
 from datetime import date
 
-@task(ignore_result=True, name='scrape google scholar')
+@task(name='scrape google scholar')
 def scrape_scolar(query="solar flares", number = 10, qobj=None):
 
     logger = scrape_scolar.get_logger()
@@ -40,7 +40,7 @@ def scrape_scolar(query="solar flares", number = 10, qobj=None):
         fetch_page.delay(url, qobj, callback=subtask(parse_scholar_page,
                                 callback=subtask(store_in_db)))
 
-@task(ignore_result=True, name='fetch content with urllib2')
+@task(name='fetch content with urllib2')
 def fetch_page(url, qobj, callback=None):
 
     logger = fetch_page.get_logger()
@@ -59,7 +59,7 @@ def fetch_page(url, qobj, callback=None):
     else:
         return page
 
-@task(ignore_result=True, name='parse scholar page')
+@task(name='parse scholar page')
 def parse_scholar_page(url, page, qobj, callback=None):
     parser = etree.HTMLParser()
     tree = etree.parse(StringIO(page), parser)
@@ -75,7 +75,12 @@ def parse_scholar_page(url, page, qobj, callback=None):
         a_join = lambda x: ''.join(x)
         a_split = lambda x: x.split(',')
 
-        a_date = lambda y: date(y, 1, 1)
+        def a_date(y):
+            if y: # year may be 0 if nothing found
+                d = date(y, 1, 1)
+                return d
+            else:
+                return None
 
         def a_find(string, pattern):
             match = re.search(pattern, string)
@@ -109,13 +114,24 @@ def parse_scholar_page(url, page, qobj, callback=None):
         return records
 
 #@transaction.commit_on_success
-@task(ignore_result=True, name='save scholar data to db')
+@task(name='save scholar data to db')
 def store_in_db(url, records, qobj):
     for record in records:
         # add article
-        article, _ = Article.objects.get_or_create(title=record['title'], defaults={'title': record['title'], 'publish_date': record['publish_date']})
+        article, _ = Article.objects.get_or_create(title=record['title'], defaults={'title': record['title']})
         article.url = record['url']
         article.snippet = record['snippet']
+
+        d = record['publish_date']
+        if d:
+            article.publish_date = d
+
+
+        # article state should be incomplete if not already otherwise complete
+        if article.state != Article.COMPLETE:
+            article.state = Article.INCOMPLETE
+
+
         article.save()
 
         # add author and article to author
@@ -127,8 +143,4 @@ def store_in_db(url, records, qobj):
 
         # add article to query
         qobj.articles.add(article)
-        qobj.save()
-
-    if qobj:
-        #qobj.status = Query.FINISHED
         qobj.save()
