@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
+from celery.result import AsyncResult
 
 class Author(models.Model):
     articles = models.ManyToManyField('Article', verbose_name="articles the author published")
@@ -17,32 +18,24 @@ class Author(models.Model):
 class Article(models.Model):
 
     UNKNOWN = 0
-    QUEUED = 1
-    RUNNING = 2
-    COMPLETE = 3
-    INCOMPLETE = 4
-    REJECTED = 5
-    INVALID = 6
-    ERROR = 7
+    INCOMPLETE = 1
+    COMPLETE = 2
+    INVALID = 2
 
-    QUERY_STATUS = (
+    QUERY_STATE = (
         (UNKNOWN, 'Unknown'),
-        (QUEUED, 'Queued'),
-        (RUNNING, 'Running'),
-        (COMPLETE, 'Complete and Finished'),
+        (COMPLETE, 'Complete'),
         (INCOMPLETE, 'Incomplete'),
-        (REJECTED, 'Rejected'),
         (INVALID, 'Invalid'),
-        (ERROR, 'Error'),
     )
 
     title = models.CharField(unique=True, max_length=255, blank=False, db_index=True)
     snippet = models.TextField(null=True, blank=True)
-    publish_date = models.DateField('date published')
+    publish_date = models.DateField('date published', null=True)
     source = models.CharField(max_length=2048, null=True, blank=True)
     url = models.CharField(max_length=255, null=True, blank=True)
 
-    status = models.IntegerField(choices=QUERY_STATUS, default=UNKNOWN, null=True)
+    state = models.IntegerField(choices=QUERY_STATE, default=UNKNOWN, null=True)
 
     is_credible = models.NullBooleanField(default=False)
     times_cited_on_isi = models.IntegerField(default=0, null=True)
@@ -59,29 +52,28 @@ class Article(models.Model):
         app_label= 'validitychecker'
 
 class Query(models.Model):
-
-    UNKNOWN = 0
-    QUEUED = 1
-    RUNNING = 2
-    FINISHED = 3
-    INVALID = 4
-    ERROR = 5
-
-    QUERY_STATUS = (
-        (UNKNOWN, 'Unknown'),
-        (QUEUED, 'Queued'),
-        (RUNNING, 'Running'),
-        (FINISHED, 'Finished'),
-        (INVALID, 'Invalid'),
-        (ERROR, 'Error'),
-    )
-
     query = models.CharField(unique=True, max_length=255, blank=False, db_index=True)
     articles = models.ManyToManyField('Article', null=True, blank=True, verbose_name="articles matching this query")
     count = models.IntegerField(default=0, verbose_name="how often query has been used")
 
-    status = models.IntegerField(choices=QUERY_STATUS, default=UNKNOWN)
-    message = models.CharField(max_length=2048, null=True, blank=True)
+    task_id = models.CharField(default='', max_length=255, null=True, db_index=True)
+
+    # celery task stuff
+    def state(self):
+        """returns the query status from the celery task"""
+        return AsyncResult(self.task_id).state
+
+    def result(self):
+        return AsyncResult(self.task_id).result
+
+    def failed(self):
+        return AsyncResult(self.task_id).failed()
+
+    def ready(self):
+        return AsyncResult(self.task_id).ready()
+
+    def successful(self):
+        return AsyncResult(self.task_id).successful()
 
     last_updated = models.DateTimeField(auto_now=True)
 

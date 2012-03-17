@@ -4,10 +4,12 @@
 from django.http import HttpResponse
 from django.utils import simplejson
 
-import urllib
+from celery.result import AsyncResult
 
 from www.apps.validitychecker.models import Query
-from www.apps.validitychecker.tasks import fetch_soap, scrape_scolar
+from www.apps.validitychecker.tasks import combined_data_retrieve
+
+import urllib
 
 def status(request, query):
     """
@@ -19,30 +21,16 @@ def status(request, query):
 
     qobj, created = Query.objects.get_or_create(query__iexact=query, defaults={'query':query})
 
-    #c = CrawlScholarTask()
-    #c.run(query=query, number=10, qobj=qobj)
+    if created:
+        task = combined_data_retrieve.delay(query=query, number=10, qobj=qobj)
+        #save task.task_id
+        qobj.task_id = task.task_id
+        qobj.save()
 
-    # starting reactor
-    #threaded_reactor()
-
-    if created or qobj.status in [Query.INVALID]:
-        #queue query
-        try:
-            #fetch_soap.delay(query=query, number=10, qobj=qobj)
-            scrape_scolar.delay(query=query, number=10, qobj=qobj)
-
-        except Exception, e:
-            qobj.status = Query.ERROR
-            qobj.message = str(e)
-            qobj.save()
-
-    qobj = Query.objects.get(query__iexact=query)
-
-    querystatus = Query.QUERY_STATUS[int(qobj.status)][1]
-    querymessage = qobj.message
+    querymessage = qobj.result() if qobj.failed else ''
 
     statusdict = {
-        'status' : querystatus,
+        'status' : AsyncResult(qobj.task_id).status,
         'message' : querymessage,
         'resulturl' : '/results/'+urllib.quote_plus(query),
     }

@@ -22,17 +22,10 @@ def scrape_scolar(query="solar flares", number = 10, qobj=None):
     uq_query = urllib.unquote_plus(query)
     query = urllib.quote_plus(query)
 
-    if qobj:
-        qobj.status = Query.QUEUED
-        qobj.save()
-
-    # TODO use celery states, not query model
-    #update_state(state="QUEUED", meta={})
-
     urls = [
-            'http://scholar.google.com/scholar?as_sdt=1&num='+str(number)+'&q='+query,
-            'http://scholar.google.com/scholar?as_sdt=1&num='+str(number)+'&start='+str(number)+'&q='+query,
-            'http://scholar.google.com/scholar?as_sdt=1&num='+str(number)+'&start='+str(2*number)+'&q='+query
+            'http://scholar.google.com/scholar?as_sdt=1&as_vis=1&num='+str(number)+'&q='+query,
+            'http://scholar.google.com/scholar?as_sdt=1&as_vis=1&num='+str(number)+'&start='+str(number)+'&q='+query,
+            'http://scholar.google.com/scholar?as_sdt=1&as_vis=1&num='+str(number)+'&start='+str(2*number)+'&q='+query
             ]
 
     for url in urls[:1]:

@@ -25,9 +25,9 @@ class ArticleAdmin(admin.ModelAdmin):
     actions = [make_article_invalid]
 
 class QueryAdmin(admin.ModelAdmin):
-    list_display   = ('query', 'count', 'status', 'last_updated')
-    list_filter    = ('count', 'status')
-    ordering       = ('-last_updated',)
+    list_display   = ('query', 'count', 'state', 'task_id', 'last_updated')
+    list_filter    = ('count', )
+    ordering       = ('-last_updated', )
     search_fields  = ('query',)
     filter_horizontal = ('articles',)
 

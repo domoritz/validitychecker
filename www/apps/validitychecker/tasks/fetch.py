@@ -27,10 +27,6 @@ def fetch_soap(query="solar flares", number = 10, qobj=None):
     query = urllib.unquote_plus(query)
     q_query = urllib.quote_plus(query)
 
-    if qobj:
-        qobj.status = Query.QUEUED
-        qobj.save()
-
     # get session id from db
     # not getting a new sid for each query avoids throttling
     sobj, created = KeyValue.objects.get_or_create(key='SID')
@@ -126,8 +122,4 @@ def store_in_db(qobj, records):
 
         # add article to query
         qobj.articles.add(article)
-        qobj.save()
-
-    if qobj:
-        qobj.status = Query.FINISHED
         qobj.save()
