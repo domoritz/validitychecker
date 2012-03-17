@@ -3,6 +3,7 @@
 
 from django.http import HttpResponse
 from django.utils import simplejson
+from django.core.urlresolvers import reverse
 
 from celery.result import AsyncResult
 
@@ -32,7 +33,7 @@ def status(request, query):
     statusdict = {
         'status' : AsyncResult(qobj.task_id).status,
         'message' : querymessage,
-        'resulturl' : '/results/'+urllib.quote_plus(query),
+        'resulturl' : reverse('status-view', kwargs={'query': urllib.quote_plus(query)}),
     }
 
     return HttpResponse(simplejson.dumps(statusdict), mimetype='application/json')
