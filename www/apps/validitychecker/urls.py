@@ -7,3 +7,7 @@ urlpatterns = patterns('www.apps.validitychecker.views',
     url(r'^score/?$', 'get_score'),
     url(r'^statistics/?$', 'statistics'),
 )
+
+urlpatterns += patterns('',
+    url('^tasks/', include('djcelery.urls')),
+)
