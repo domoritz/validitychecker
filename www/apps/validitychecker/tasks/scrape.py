@@ -4,7 +4,6 @@
 from django.db import transaction
 
 from celery.task import task, subtask
-from celery import registry
 
 from www.apps.validitychecker.models import Query, Article, Author
 
@@ -13,27 +12,22 @@ import re, urllib2, urllib
 from StringIO import StringIO
 from datetime import date
 
-@task(name='scrape google scholar')
-def scrape_scolar(query="solar flares", number = 10, qobj=None):
-
-    logger = scrape_scolar.get_logger()
-    logger.info("Start scraping")
-
-    uq_query = urllib.unquote_plus(query)
-    query = urllib.quote_plus(query)
+@task(name='scrape.make_scholar_urls')
+def make_scholar_urls(number, qobj, callback=None):
+    query = urllib.quote_plus(qobj.query)
 
     urls = [
             'http://scholar.google.com/scholar?as_sdt=1&as_vis=1&num='+str(number)+'&q='+query,
             'http://scholar.google.com/scholar?as_sdt=1&as_vis=1&num='+str(number)+'&start='+str(number)+'&q='+query,
-            'http://scholar.google.com/scholar?as_sdt=1&as_vis=1&num='+str(number)+'&start='+str(2*number)+'&q='+query
+            #'http://scholar.google.com/scholar?as_sdt=1&as_vis=1&num='+str(number)+'&start='+str(2*number)+'&q='+query
             ]
 
-    for url in urls[:1]:
-        # fetch_page -> parse_page -> store_in_db
-        fetch_page.delay(url, qobj, callback=subtask(parse_scholar_page,
-                                callback=subtask(store_in_db)))
+    if callback:
+        return [subtask(callback).delay(url, qobj) for url in urls]
+    else:
+        return urls
 
-@task(name='fetch content with urllib2')
+@task(name='scrape.fetch_page')
 def fetch_page(url, qobj, callback=None):
 
     logger = fetch_page.get_logger()
@@ -48,11 +42,11 @@ def fetch_page(url, qobj, callback=None):
         # The callback may have been serialized with JSON,
         # so best practice is to convert the subtask dict back
         # into a subtask object.
-        subtask(callback).delay(url, page, qobj)
+        return subtask(callback).delay(url, page, qobj)
     else:
-        return page
+        return url, page
 
-@task(name='parse scholar page')
+@task(name='scrape.parse_scholar_page')
 def parse_scholar_page(url, page, qobj, callback=None):
     parser = etree.HTMLParser()
     tree = etree.parse(StringIO(page), parser)
@@ -102,12 +96,12 @@ def parse_scholar_page(url, page, qobj, callback=None):
         records.append(record)
 
     if callback:
-        subtask(callback).delay(url, records, qobj)
+        return subtask(callback).delay(url, records, qobj)
     else:
-        return records
+        return url, records
 
 #@transaction.commit_on_success
-@task(name='save scholar data to db')
+@task(name='scrape.store_in_db')
 def store_in_db(url, records, qobj):
     for record in records:
         # add article
@@ -137,3 +131,4 @@ def store_in_db(url, records, qobj):
         # add article to query
         qobj.articles.add(article)
         qobj.save()
+    return records

@@ -171,7 +171,7 @@ djcelery.setup_loader()
 ## number of CPUs on your machine. If not set, the number of CPUs/cores
 ## available will be used.
 ## We have IO (network) so lets have a high number
-CELERYD_CONCURRENCY = 20
+CELERYD_CONCURRENCY = 30
 
 CELERY_TRACK_STARTED = True
 

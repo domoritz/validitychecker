@@ -43,3 +43,17 @@ MIDDLEWARE_CLASSES += ((),
     'django.middleware.cache.CacheMiddleware',
     'django.middleware.http.ConditionalGetMiddleware',
 )
+
+
+# Enables error emails.
+CELERY_SEND_TASK_ERROR_EMAILS = True
+
+# Email address used as sender (From field).
+SERVER_EMAIL = "no-reply@example.com"
+
+# Mailserver configuration
+EMAIL_HOST = "mail.example.com"
+EMAIL_PORT = 25
+# EMAIL_HOST_USER = "servers"
+# EMAIL_HOST_PASSWORD = "s3cr3t"
+
