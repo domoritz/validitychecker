@@ -12,15 +12,20 @@ from oktest import test, ok, NG
 
 from www.apps.validitychecker.tasks.scrape import make_scholar_urls, fetch_page, parse_scholar_page, store_non_credible_in_db
 from www.apps.validitychecker.tasks.fetch import prepare_client, search_soap, extract_data, store_credible_in_db
-from www.apps.validitychecker.tasks import *
+from www.apps.validitychecker.tasks.combined import combined_data_retrieve
 
 from celery.task import task, subtask
 from www.apps.validitychecker.models import Query, Article
 from celery.result import BaseAsyncResult, AsyncResult, EagerResult
 
+###########################################
+# Scraper Tests
+###########################################
+
+
 class ScrapeScholarPipelineTestCase(TestCase):
     def setUp(self):
-        qobj = Query(query ='ice+cream')
+        qobj = Query(query ='ice cream')
         qobj.save()
 
         number = 10
@@ -31,7 +36,7 @@ class ScrapeScholarPipelineTestCase(TestCase):
             callback=subtask(store_non_credible_in_db))))
         self.result.get() # block
 
-        self.articles = Article.objects.all()
+        self.articles = qobj.articles.all()
 
     @test("the whole scrape pipeline should work")
     def _(self):
@@ -56,11 +61,16 @@ class ScrapeScholarPipelineTestCase(TestCase):
         for article in self.articles:
             ok(article.state) == Article.INCOMPLETE
 
+###########################################
+# Fetch/SOAP Tests
+###########################################
+
+
 class SoapPipelineTestCase(TestCase):
     @classmethod
     def setUpClass(cls):
-        qobj = Query(query ='ice+cream')
-        qobj.save()
+        query='ice shield'
+        qobj, _ = Query.objects.get_or_create(query__iexact=query, defaults={'query':query})
 
         number = 10
         result = prepare_client.delay(number, qobj, \
@@ -72,15 +82,16 @@ class SoapPipelineTestCase(TestCase):
         while isinstance(result, EagerResult) or isinstance(result, AsyncResult):
             result = result.get()
             cls.result.append(result)
+        cls.qobj = qobj
 
     def setUp(self):
         self.result = self.__class__.result
-        self.articles = Article.objects.all()
+        self.articles = self.__class__.qobj.articles.all()
 
     @test("the whole soap pipeline should work")
     def _(self):
         for result in self.result[:-1]:
-            ok(result.successful()).should
+            ok(result.successful()) == True
         ok(self.result[-1]).is_a(list)
 
     @test("at least 5 articles for ice cream")
@@ -92,23 +103,42 @@ class SoapPipelineTestCase(TestCase):
         for article in self.articles:
             ok(len(article.title)) > 0
 
-    @test("article should have credible")
+    @test("article should be credible")
     def _(self):
         for article in self.articles:
             ok(article.is_credible) == True
 
-    @test("state should be incomplete")
+    @test("state should be incomplete because some things like the snippet are missing")
     def _(self):
         for article in self.articles:
             ok(article.state) == Article.INCOMPLETE
 
 
-class CompleteRetrieveTestCase(TestCase):
-    def setUp(self):
-        self.result = combined.combined_data_retrieve()
+###########################################
+# Complete test, highest abstraction
+###########################################
 
-    @test("result should not be empty")
+class CompleteRetrieveTestCase(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        query='sun spots'
+        qobj, _ = Query.objects.get_or_create(query__iexact=query, defaults={'query':query})
+        cls.result = combined_data_retrieve.delay(query=query, number=10, qobj=qobj)
+        cls.qobj = qobj
+
+    def setUp(self):
+        self.result = self.__class__.result
+        self.result.get()
+        self.articles = self.__class__.qobj.articles.all()
+
+    @test("the complete pipeline should work")
     def _(self):
-        ok(len(self.result)) > 0
+        ok (self.result.successful()) == True
+
+    @test("all articles should have title")
+    def _(self):
+        for article in self.articles:
+            ok(len(article.title)) > 0
+
 
 

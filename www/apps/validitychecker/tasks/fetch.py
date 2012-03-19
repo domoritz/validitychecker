@@ -30,6 +30,7 @@ def prepare_client(number = 10, qobj=None, callback=None):
     # lazy invalid function, invalid if older than 30 minutes
     valid = lambda: (datetime.now() - sobj.created_at).seconds/60 < 30
 
+    soap = None
     if not created and valid():
         # get latest session id, avoid problems when no id is defined
         sessionid = sobj.value

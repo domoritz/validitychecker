@@ -22,7 +22,6 @@ from www.apps.validitychecker.utils.wokmws import WokmwsSoapClient
 # Scrape Tests
 ###########################################
 
-
 class FetchContentTest(TestCase):
     def setUp(self):
         """
@@ -176,7 +175,7 @@ class SoapExtractionTest(TestCase):
     @classmethod
     def setUpClass(cls):
         soap = WokmwsSoapClient()
-        query='solar flare'
+        query='climate change'
         qobj, _ = Query.objects.get_or_create(query__iexact=query, defaults={'query':query})
         result = fetch.search_soap(soap, qobj, 5)
         cls.records = fetch.extract_data(None, result)

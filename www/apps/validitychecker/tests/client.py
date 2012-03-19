@@ -41,6 +41,7 @@ class StatusTest(TestCase):
     def _(self):
         ok (self.json['resulturl']) != ''
 
+
 class IndexPageTest(TestCase):
     def setUp(self):
         """
