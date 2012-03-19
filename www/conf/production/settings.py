@@ -44,6 +44,11 @@ MIDDLEWARE_CLASSES += ((),
     'django.middleware.http.ConditionalGetMiddleware',
 )
 
+#==============================================================================
+# Celery
+#==============================================================================
+
+CELERYD_CONCURRENCY = 50
 
 # Enables error emails.
 CELERY_SEND_TASK_ERROR_EMAILS = True
