@@ -46,6 +46,7 @@ This Version requires a little bit more work that version 1 since it is more pow
     pip install -r devel-req.txt
     cd validitychecker/www/bin/
     python manage.py syncdb --noinput
+    python manage.py migrate
 
 #### Run
 Run these three command in different sessions on your command line
@@ -55,17 +56,26 @@ Run these three command in different sessions on your command line
 
     # run celery
     python manage.py celeryd -l INFO -E
-    
-    # run celerycam for monitoring
-    python manage.py celerycam
 
     # run django
     python manage.py runserver
+
+#### Monitor celery tasks
+
+    # on the command line
+    python manage.py celeryev --frequency=1.0
+
+    # run celerycam for monitoring tasks in django admin
+    python manage.py celerycam
+
 
 #### Run tests
 
     python manage.py test validitychecker -v 2
 
+
+## Documentation
+* [Wiki](/domoritz/validitychecker/wiki)
 
 ## Problem
 * It is difficult for normal people to classify the background of scientific statements and what is serious. 
@@ -94,9 +104,6 @@ Run these three command in different sessions on your command line
 * Available in English and German
 * Adaptive Design for smaller screen sizes
 
-## Documentation
-* [Wiki](/domoritz/validitychecker/wiki)
-
 ## Remaining issues
 * Register for the ISI Web of Knowledge API and implement the hooks
 * Digestible article summaries 
@@ -123,6 +130,4 @@ Run these three command in different sessions on your command line
 * [ISI Web of Knowledge](http://apps.isiknowledge.com/)
 * [Arvo Font](http://www.fontsquirrel.com/fonts/arvo)
 * ...
-
-
 
