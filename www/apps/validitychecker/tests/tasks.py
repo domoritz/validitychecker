@@ -29,10 +29,10 @@ class FetchContentTest(TestCase):
         Tests that fetch_page returns something
         """
 
-        url = 'http://scholar.google.com/scholar?as_sdt=1&num=10&q=solar+flare'
+        url = 'http://scholar.google.com/scholar?as_sdt=1&as_vis=1&num=10&q=solar+flare'
         qobj = None
 
-        self.result = scrape.fetch_page(url, qobj)
+        _, self.result = scrape.fetch_page(url, qobj)
 
     @test("fetch should be successful")
     def _(self):
@@ -50,7 +50,7 @@ class ParseTest(TestCase):
         page = f.read()
         qobj = None
 
-        self.records = scrape.parse_scholar_page(url, page, qobj)
+        _, self.records = scrape.parse_scholar_page(url, page, qobj)
 
     @test("parsing should return 10 items")
     def _(self):
@@ -76,7 +76,8 @@ class ParseTest(TestCase):
 
 class WriteScrapedToDBTest(TestCase):
     def setUp(self):
-        qobj = Query.objects.create(query='solar flare', status=Query.RUNNING)
+        query='solar flare'
+        qobj, _ = Query.objects.get_or_create(query__iexact=query, defaults={'query':query})
 
         records = [{'title': u'The solar flare myth', \
                 'url': u'http://www.agu.org/pubs/crossref/1993/93JA01896.shtml', \
@@ -138,7 +139,9 @@ class SoapSearchTest(TestCase):
     @classmethod
     def setUpClass(cls):
         soap = WokmwsSoapClient()
-        cls.result = fetch.search_soap(soap, None, 'solar flare', 5)
+        query='solar flare'
+        qobj, _ = Query.objects.get_or_create(query__iexact=query, defaults={'query':query})
+        cls.result = fetch.search_soap(soap, qobj, 5)
 
     def setUp(self):
         self.result = self.__class__.result
@@ -164,7 +167,9 @@ class SoapExtractionTest(TestCase):
     @classmethod
     def setUpClass(cls):
         soap = WokmwsSoapClient()
-        result = fetch.search_soap(soap, None, 'solar flare', 5)
+        query='solar flare'
+        qobj, _ = Query.objects.get_or_create(query__iexact=query, defaults={'query':query})
+        result = fetch.search_soap(soap, qobj, 5)
         cls.records = fetch.extract_data(None, result)
 
     def setUp(self):

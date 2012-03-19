@@ -28,9 +28,17 @@ class StatusTest(TestCase):
     def _(self):
         ok (self.response.status_code) == 200
 
+    @test("status should be PENDING")
+    def _(self):
+        ok (self.json['status']) == 'PENDING'
+
     @test("there should be no error on the status page")
     def _(self):
         ok (self.json['status']) != 'ERROR'
         print "Status is:", self.json['status']
+
+    @test("there should be a resulturl")
+    def _(self):
+        ok (self.json['resulturl']) != ''
 
 
