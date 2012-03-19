@@ -13,7 +13,7 @@ class Author(models.Model):
         return u'%s' % self.name
 
     class Meta:
-        app_label= 'validitychecker'
+        app_label = 'validitychecker'
 
 class Article(models.Model):
 
@@ -49,7 +49,7 @@ class Article(models.Model):
         return self.title
 
     class Meta:
-        app_label= 'validitychecker'
+        app_label = 'validitychecker'
 
 class Query(models.Model):
     query = models.CharField(unique=True, max_length=255, blank=False, db_index=True)
@@ -57,6 +57,8 @@ class Query(models.Model):
     count = models.IntegerField(default=0, verbose_name="how often query has been used")
 
     task_id = models.CharField(default='', max_length=255, null=True, db_index=True)
+
+    frozen = models.BooleanField(default=False, null=True, verbose_name="successful and task can be deleted") #TODO use this
 
     # celery task stuff
     def state(self):
@@ -84,7 +86,7 @@ class Query(models.Model):
         return self.query
 
     class Meta:
-        app_label= 'validitychecker'
+        app_label = 'validitychecker'
 
 class KeyValue(models.Model):
     key = models.CharField(unique=True, max_length=60, blank=False, db_index=True)
@@ -100,4 +102,4 @@ class KeyValue(models.Model):
         return ' - '.join([self.key, self.value])
 
     class Meta:
-        app_label= 'validitychecker'
+        app_label = 'validitychecker'

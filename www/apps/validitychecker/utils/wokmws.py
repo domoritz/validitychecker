@@ -37,7 +37,7 @@ class WokmwsSoapClient():
 
         # use sid if provided
         if SID:
-            self.SID=SID
+            self.SID = SID
             self.initAuthClient()
             self.initSearchClient()
         else:
@@ -120,7 +120,7 @@ def main():
     print "SID:", soap.SID
 
     result = []
-    for x in range(1,3000,100):
+    for x in range(1, 3000, 100):
         if len(result) and x > result[0].recordsFound or x > 500:
             break
         result.append(soap.search(query='TS=solar flare', number=100, first=x))

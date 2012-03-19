@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from django.db.models import F, Count, Sum, Q
+from django.db.models import F, Count, Sum
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404
 import urllib
 
 from www.apps.validitychecker.views import *
-from www.apps.validitychecker.models import Query, Article, Author
+from www.apps.validitychecker.models import Query, Author
 
 def results(request, query):
 
@@ -53,7 +53,7 @@ def authors_and_articles_for_query(qobj):
 
 @csrf_exempt
 def get_score(request):
-    title = request.POST.get('title')
-    author = request.POST.get('author')
+    #title = request.POST.get('title')
+    #author = request.POST.get('author')
     import random
     return HttpResponse(str(random.randrange(100)), mimetype="text/plain")
