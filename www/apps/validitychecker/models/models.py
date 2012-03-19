@@ -58,7 +58,7 @@ class Query(models.Model):
 
     task_id = models.CharField(default='', max_length=255, null=True, db_index=True)
 
-    frozen = models.BooleanField(default=False, null=True, verbose_name="successful and task can be deleted") #TODO use this
+    frozen = models.NullBooleanField(verbose_name="successful and task can be deleted") #TODO use this
 
     # celery task stuff
     def state(self):

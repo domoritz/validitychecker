@@ -101,8 +101,8 @@ def parse_scholar_page(url, page, qobj, callback=None):
         return url, records
 
 #@transaction.commit_on_success
-@task(name='scrape.store_in_db')
-def store_in_db(url, records, qobj):
+@task(name='scrape.store_non_credible_in_db')
+def store_non_credible_in_db(url, records, qobj):
     for record in records:
         # add article
         article, _ = Article.objects.get_or_create(title=record['title'], defaults={'title': record['title']})
@@ -113,11 +113,11 @@ def store_in_db(url, records, qobj):
         if d:
             article.publish_date = d
 
-
-        # article state should be incomplete if not already otherwise complete
-        if article.state != Article.COMPLETE:
+        if article.state == Article.INCOMPLETE and article.snippet and article.url and article.publish_date:
+            # set as complete if all interesting things are set
+            article.state = Article.COMPLETE
+        else:
             article.state = Article.INCOMPLETE
-
 
         article.save()
 

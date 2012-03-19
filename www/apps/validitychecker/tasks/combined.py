@@ -15,7 +15,7 @@ from celery.task.sets import TaskSet
 
 from www.apps.validitychecker.models import Query
 
-from www.apps.validitychecker.tasks.scrape import make_scholar_urls, fetch_page, parse_scholar_page, store_in_db
+from www.apps.validitychecker.tasks.scrape import make_scholar_urls, fetch_page, parse_scholar_page, store_non_credible_in_db
 from www.apps.validitychecker.tasks.fetch import prepare_client, search_soap, extract_data, store_credible_in_db
 
 #@transaction.commit_on_success
@@ -78,7 +78,7 @@ def combined_data_retrieve(query= "solar flares", number = 10, qobj = None):
     logger.info("jobs returned results")
 
     # let's save the results from scholar to the db
-    db_job = TaskSet(tasks=[store_in_db.subtask((url, records, qobj)) for (url, records) in scholarResults])
+    db_job = TaskSet(tasks=[store_non_credible_in_db.subtask((url, records, qobj)) for (url, records) in scholarResults])
     scholar_db_result = db_job.apply_async()
 
     scholar_records = scholar_db_result.join()

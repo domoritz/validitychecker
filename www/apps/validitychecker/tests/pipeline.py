@@ -10,7 +10,7 @@ Uses http://www.kuwata-lab.com/oktest/oktest-py_users-guide.html
 from django.test import TestCase
 from oktest import test, ok, NG
 
-from www.apps.validitychecker.tasks.scrape import make_scholar_urls, fetch_page, parse_scholar_page, store_in_db
+from www.apps.validitychecker.tasks.scrape import make_scholar_urls, fetch_page, parse_scholar_page, store_non_credible_in_db
 from www.apps.validitychecker.tasks.fetch import prepare_client, search_soap, extract_data, store_credible_in_db
 from www.apps.validitychecker.tasks import *
 
@@ -24,11 +24,11 @@ class ScrapeScholarPipelineTestCase(TestCase):
         qobj.save()
 
         number = 10
-        # fetch_page -> parse_page -> store_in_db
+        # fetch_page -> parse_page -> store_non_credible_in_db
         self.result = make_scholar_urls.delay(number, qobj, \
             callback=subtask(fetch_page, \
             callback=subtask(parse_scholar_page, \
-            callback=subtask(store_in_db))))
+            callback=subtask(store_non_credible_in_db))))
         self.result.get() # block
 
         self.articles = Article.objects.all()
@@ -80,8 +80,8 @@ class SoapPipelineTestCase(TestCase):
     @test("the whole soap pipeline should work")
     def _(self):
         for result in self.result[:-1]:
-            ok (result.successful()) == True
-        ok (self.result[-1]).is_a(list)
+            ok(result.successful()).should
+        ok(self.result[-1]).is_a(list)
 
     @test("at least 5 articles for ice cream")
     def _(self):

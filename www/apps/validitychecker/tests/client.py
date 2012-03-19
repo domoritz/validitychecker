@@ -41,4 +41,16 @@ class StatusTest(TestCase):
     def _(self):
         ok (self.json['resulturl']) != ''
 
+class IndexPageTest(TestCase):
+    def setUp(self):
+        """
+        Tests the index/start/home page
+        """
 
+        c = Client()
+        self.response = c.get('/')
+        self.content = self.response.content
+
+    @test("index page should be there")
+    def _(self):
+        ok (self.response.status_code) == 200

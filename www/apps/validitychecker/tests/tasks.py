@@ -85,7 +85,7 @@ class WriteScrapedToDBTest(TestCase):
                 'source': u'Journal of Geophysical Research', \
                 'publish_date': date(1993, 1, 1), \
                 'authors': [u'JT Gosling', u'J Doe']}]
-        scrape.store_in_db('solar flare', records, qobj)
+        scrape.store_non_credible_in_db('solar flare', records, qobj)
 
         self.article = Article.objects.get(title='The solar flare myth')
 
@@ -109,12 +109,12 @@ class WriteScrapedToDBTest(TestCase):
 
     @test("article should not be credible")
     def _(self):
-        ok(self.article.is_credible) != True
+        ok(self.article.is_credible) == False
 
     @test("J Doe should be an author")
     def _(self):
         _, created = Author.objects.get_or_create(name='J Doe')
-        ok(created) != True
+        ok(created) == False
 
     @test("J Doe should have the article as one of his articles")
     def _(self):
@@ -128,12 +128,21 @@ class WriteScrapedToDBTest(TestCase):
 
 
 class SoapSetupTest(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.soap = fetch.prepare_client(number = 0, qobj=None)
+
     def setUp(self):
-        self.soap = WokmwsSoapClient()
+        self.soap =  self.__class__.soap
 
     @test("client must have sid")
     def _(self):
         ok (self.soap).has_attr('SID')
+
+    @test("second client sould have same sid")
+    def _(self):
+        soap = fetch.prepare_client(number = 0, qobj=None)
+        ok (self.soap.SID) == soap.SID
 
 class SoapSearchTest(TestCase):
     @classmethod

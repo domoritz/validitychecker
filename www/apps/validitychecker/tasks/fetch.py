@@ -108,13 +108,18 @@ def store_credible_in_db(qobj, records):
     for record in records:
         # add article
         article, _ = Article.objects.get_or_create(title=record['title'], defaults={'title': record['title'], 'publish_date': record['publish_date']})
+
         article.is_credible = True # set credible because it's in the isi index
+
         if article.state in [ Article.INCOMPLETE ]:
             # fetch isi cited data
             pass
 
-        # article state should be incomplete if not already otherwise complete
-        if article.state != Article.COMPLETE:
+
+        if article.state == Article.INCOMPLETE and article.snippet and article.url and article.publish_date:
+            # set as complete if all interesting things are set
+            article.state = Article.COMPLETE
+        else:
             article.state = Article.INCOMPLETE
 
         article.save()
