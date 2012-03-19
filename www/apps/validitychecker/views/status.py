@@ -23,7 +23,7 @@ def status(request, query):
     qobj, created = Query.objects.get_or_create(query__iexact=query, defaults={'query':query})
 
     if created or qobj.failed():
-        task = combined_data_retrieve.delay(query=query, number=10, qobj=qobj)
+        task = combined_data_retrieve(query=query, number=10, qobj=qobj).delay()
         #save task.task_id
         qobj.task_id = task.task_id
         qobj.save()

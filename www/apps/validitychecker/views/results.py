@@ -19,7 +19,7 @@ def results(request, query):
 
     qobj = get_object_or_404(Query, query__iexact=query)
 
-    if qobj.status in [Query.FINISHED]:
+    if qobj.successful():
 
         qobj.count = F('count') + 1
         qobj.save()
