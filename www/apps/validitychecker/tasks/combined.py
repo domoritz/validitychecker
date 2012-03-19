@@ -20,7 +20,7 @@ from www.apps.validitychecker.tasks.fetch import prepare_client, search_soap, ex
 
 #@transaction.commit_on_success
 @task(time_limit=30, name="combined.combined_data_retrieve")
-def combined_data_retrieve(query= "solar flares", number = 10, qobj = None):
+def combined_data_retrieve(query=None, number=10, qobj=None):
 
     logger = combined_data_retrieve.get_logger()
     logger.info("Start retrieving data")
