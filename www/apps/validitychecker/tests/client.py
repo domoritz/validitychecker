@@ -9,7 +9,9 @@ Uses http://www.kuwata-lab.com/oktest/oktest-py_users-guide.html
 
 from django.test import TestCase
 from django.test.client import Client
-from oktest import test, ok, NG
+from oktest import test, ok
+import oktest
+oktest.DIFF = repr
 
 import json
 
@@ -28,9 +30,9 @@ class StatusTest(TestCase):
     def _(self):
         ok (self.response.status_code) == 200
 
-    @test("status should be PENDING")
+    @test("status should be PENDING or SUCCESS")
     def _(self):
-        ok (self.json['status']) == 'PENDING'
+        ok (self.json['status'] in ['PENDING', 'SUCCESS']) == True
 
     @test("there should be no error on the status page")
     def _(self):

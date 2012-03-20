@@ -8,10 +8,13 @@ Uses http://www.kuwata-lab.com/oktest/oktest-py_users-guide.html
 """
 
 from django.test import TestCase
-from oktest import test, ok, NG
+from oktest import test, ok
+import oktest
+oktest.DIFF = repr
 
 from www.apps.validitychecker.tasks import scrape
 from www.apps.validitychecker.tasks import fetch
+from www.apps.validitychecker.tasks import db
 from www.apps.validitychecker.models import Query, Article, Author
 
 import os
@@ -25,13 +28,13 @@ from www.apps.validitychecker.utils.wokmws import WokmwsSoapClient
 class FetchContentTest(TestCase):
     def setUp(self):
         """
-        Tests that fetch_page returns something
+        Tests that fetch_page_from_url returns something
         """
 
         url = 'http://scholar.google.com/scholar?as_sdt=1&as_vis=1&num=10&q=solar+flare'
         qobj = None
 
-        _, self.result = scrape.fetch_page(url, qobj)
+        _, self.result = scrape.fetch_page_from_url(url, qobj)
 
     @test("fetch should be successful")
     def _(self):
@@ -84,7 +87,7 @@ class WriteScrapedToDBTest(TestCase):
                 'source': u'Journal of Geophysical Research', \
                 'publish_date': date(1993, 1, 1), \
                 'authors': [u'JT Gosling', u'J Doe']}]
-        scrape.store_non_credible_in_db('solar flare', records, qobj)
+        db.store_non_credible_in_db('solar flare', records, qobj)
 
         self.article = Article.objects.get(title='The solar flare myth')
 

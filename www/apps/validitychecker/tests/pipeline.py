@@ -8,15 +8,18 @@ Uses http://www.kuwata-lab.com/oktest/oktest-py_users-guide.html
 """
 
 from django.test import TestCase
-from oktest import test, ok, NG
+from oktest import test, ok
+import oktest
+oktest.DIFF = repr
 
-from www.apps.validitychecker.tasks.scrape import make_scholar_urls, fetch_page, parse_scholar_page, store_non_credible_in_db
-from www.apps.validitychecker.tasks.fetch import prepare_client, search_soap, extract_data, store_credible_in_db, wok_soap_complete
+from www.apps.validitychecker.tasks.scrape import make_scholar_urls, fetch_page_from_url, parse_scholar_page
+from www.apps.validitychecker.tasks.fetch import prepare_client, search_soap, extract_data, wok_soap_complete
+from www.apps.validitychecker.tasks.db import store_non_credible_in_db, store_credible_in_db
 from www.apps.validitychecker.tasks.combined import combined_data_retrieve
 
-from celery.task import task, subtask
+from celery.task import subtask
 from www.apps.validitychecker.models import Query, Article
-from celery.result import BaseAsyncResult, AsyncResult, EagerResult
+from celery.result import AsyncResult, EagerResult
 
 ###########################################
 # Scraper Tests
@@ -29,9 +32,9 @@ class ScrapeScholarPipelineTestCase(TestCase):
         qobj.save()
 
         number = 10
-        # fetch_page -> parse_page -> store_non_credible_in_db
+        # fetch_page_from_url -> parse_page -> store_non_credible_in_db
         self.result = make_scholar_urls.delay(number, qobj, \
-            callback=subtask(fetch_page, \
+            callback=subtask(fetch_page_from_url, \
             callback=subtask(parse_scholar_page, \
             callback=subtask(store_non_credible_in_db))))
         self.result.get() # block

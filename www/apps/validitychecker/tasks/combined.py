@@ -15,8 +15,9 @@ from celery.task.sets import TaskSet
 
 from www.apps.validitychecker.models import Query
 
-from www.apps.validitychecker.tasks.scrape import make_scholar_urls, fetch_page, parse_scholar_page, store_non_credible_in_db
-from www.apps.validitychecker.tasks.fetch import prepare_client, search_soap, extract_data, store_credible_in_db, wok_soap_complete
+from www.apps.validitychecker.tasks.scrape import make_scholar_urls, fetch_page_from_url, parse_scholar_page
+from www.apps.validitychecker.tasks.fetch import prepare_client, search_soap, extract_data, wok_soap_complete
+from www.apps.validitychecker.tasks.db import store_non_credible_in_db, store_credible_in_db
 
 #@transaction.commit_on_success
 @task(time_limit=30, name="combined.combined_data_retrieve")
@@ -38,7 +39,7 @@ def combined_data_retrieve(query=None, number=10, qobj=None):
 
     # run scholar fetching and parsing
     scholar_results = [
-            fetch_page.delay(url, qobj,
+            fetch_page_from_url.delay(url, qobj,
             callback=subtask(parse_scholar_page,
             callback=subtask(store_non_credible_in_db)))
             for url in scholarurls]
