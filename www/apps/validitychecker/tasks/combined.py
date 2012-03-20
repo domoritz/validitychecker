@@ -43,13 +43,7 @@ def combined_data_retrieve(query=None, number=10, qobj=None):
             callback=subtask(store_non_credible_in_db)))
             for url in scholarurls]
 
-    # fetching soap job
-    # prepare_client -> search_soap -> extract_data -> store_credible_in_db
-    #wokws_data_result = prepare_client.delay(number=number, qobj=qobj,
-    #        callback=subtask(search_soap,
-    #        callback=subtask(extract_data,
-    #        callback=subtask(store_credible_in_db))))
-
+    # wok api fetching
     wokws_data_result = wok_soap_complete.delay(number=number, qobj=qobj)
 
     logger.info("submitted all jobs")
@@ -58,13 +52,6 @@ def combined_data_retrieve(query=None, number=10, qobj=None):
     # blocking
     #########
 
-    # use this pattern: http://stackoverflow.com/questions/3901101/pythoncelery-chaining-jobs
-    # it will return the subtask instead of data
-    # the last subtask in a row will return the actual data
-    #
-    # while isinstance(result, Result): # while result is not the last, do a step
-    #    result = result.get()
-
     scholar_records = []
     #wait for fetching and parsing of scholar
     for result in scholar_results:
@@ -72,29 +59,10 @@ def combined_data_retrieve(query=None, number=10, qobj=None):
             result = result.get()
         scholar_records.append(result)
 
-
-    # blocks until results are in db
-    #result = wokws_data_result
-    #while isinstance(result, EagerResult) or isinstance(result, AsyncResult):
-    #    result = result.get()
-    #wpk_records = wokws_data_result
-
+    # wait for soap api client to finish
     wpk_records = wokws_data_result.get()
 
     logger.info("jobs returned results")
-
-    # let's save the results from scholar to the db
-    #db_job = TaskSet(tasks=[store_non_credible_in_db.subtask((url, records, qobj)) for (url, records) in scholar_results])
-    #scholar_db_result = db_job.apply_async()
-
-    #scholar_records = scholar_db_result.join()
-
-
-    # save task id
-    #qobj.task_id = combined_data_retrieve.request.id
-    #qobj.save()
-
-    logger.info("everything saved")
 
     ret = wpk_records, scholar_records
 
