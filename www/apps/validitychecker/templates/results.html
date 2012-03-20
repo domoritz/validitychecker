@@ -13,12 +13,12 @@
 				<span class="visuallyhidden">{% trans "Climate science theory" %}</span>
 				<input id="query" name="query" class="" value="{{ query }}" required placeholder="{% trans "Enter a theory" %}" type="search" />
 			</label>
-			<input type="submit" value="{% trans "Search" %}" />
+			<input type="submit" class="search" value="{% trans "Search" %}" />
 		</fieldset>
 	</form>
 
 	<div class="clearfix"></div>
-	<div class="query-for-results">{% blocktrans%}Showing results for{% endblocktrans %} <strong>{{ query }}</strong></div>
+	<div class="query-for-results">{% blocktrans%}Showing results for <strong>{{ query }}</strong>{% endblocktrans %}</div>
 	<ol id="results">
 		{% for author, articles in results %}
 		<li>
