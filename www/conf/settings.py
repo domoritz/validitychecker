@@ -179,6 +179,10 @@ CELERY_IMPORTS = ("celery.task.http", )
 
 CELERY_TASK_SERIALIZER = 'pickle'
 
+CELERY_TASK_RESULT_EXPIRES = 3600  # 1 hour = 3600, 5 hours = 18000.
+
+CELERYD_TASK_TIME_LIMIT = 180 # maximum time you have to wait for a task
+
 #def my_on_failure(self, exc, task_id, args, kwargs, einfo):
 #    print("Oh no! Task failed: %r" % (exc, ))
 
