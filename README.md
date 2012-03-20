@@ -73,6 +73,11 @@ Run these three command in different sessions on your command line
 
     python manage.py test validitychecker -v 2
 
+#### Update the language files (in this case for German)
+
+    python bin/manage.py makemessages -l de
+
+Then you can go to `/rosetta` to translate the application.
 
 ## Documentation
 * [Wiki](/domoritz/validitychecker/wiki)
