@@ -19,7 +19,7 @@
 				<span class="visuallyhidden">{% trans "Climate science theory" %}</span>
 				<input id="query" name="query" class="" required autofocus placeholder="{% trans "Enter a theory" %}" type="search" />
 			</label>
-			<input type="submit" value="{% trans "Search" %}" />
+			<input type="submit" class="search" value="{% trans "Search" %}" />
 		</fieldset>
 	</form>
 
@@ -31,5 +31,17 @@
 			{% endfor %}
 		</ul>
 	</div>
+
+	<form action="/i18n/setlang/" method="post">
+		{% csrf_token %}
+		<input name="next" type="hidden" value="/" />
+		<select name="language">
+			{% for lang in LANGUAGES %}
+			<option value="{{ lang.0 }}">{{ lang.1 }}</option>
+			{% endfor %}
+		</select>
+		<input type="submit" value="Go" />
+	</form>
+
 </div>
 {% endblock %}

@@ -6,7 +6,7 @@ Goggles.redirect = (function() {
 	query = ''
 
 	function init() {
-		$('input[type=submit]').click(function(){
+		$('input[type=submit].search').click(function(){
 
 			var query = encodeURI($('#query').val())
 			console.log(query)
@@ -23,9 +23,9 @@ Goggles.redirect = (function() {
 			dataType: 'json',
 			success: function (data, textStatus, xhr) {
 				console.log(data.status);
-				if (data.status == 'Finished') {
+				if (data.status == 'SUCCESS') {
 					window.location.href = data.resulturl;
-				} else if (data.status in {'Queued':1, 'Invalid':1, 'Unknown':1}) {
+				} else if (data.status in {'PENDING':1, 'STARTED':1, 'RETRY':1}) {
 					window.setTimeout(function () {
 						check(query);
 					}, 1000);
