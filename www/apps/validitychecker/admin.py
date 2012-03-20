@@ -1,9 +1,9 @@
 from django.contrib import admin
 from www.apps.validitychecker.models import Query, Article, Author, KeyValue
 
-def make_query_invalid(modeladmin, request, queryset):
-    queryset.update(status=Query.INVALID)
-make_query_invalid.short_description = "Mark selected query as invalid"
+def freeze_query(modeladmin, request, queryset):
+    queryset.update(frozen=True)
+freeze_query.short_description = "Freeze query"
 
 def make_article_invalid(modeladmin, request, queryset):
     queryset.update(status=Article.INVALID)
@@ -25,13 +25,13 @@ class ArticleAdmin(admin.ModelAdmin):
     actions = [make_article_invalid]
 
 class QueryAdmin(admin.ModelAdmin):
-    list_display   = ('query', 'count', 'state', 'successful', 'task_id', 'last_updated')
+    list_display   = ('query', 'count', 'state', 'frozen', 'task_id', 'last_updated')
     list_filter    = ('count', )
     ordering       = ('-last_updated', )
     search_fields  = ('query',)
     filter_horizontal = ('articles',)
 
-    actions = [make_query_invalid]
+    actions = [freeze_query]
 
 admin.site.register(Author, AuthorAdmin)
 admin.site.register(Article, ArticleAdmin)
