@@ -21,24 +21,3 @@ Goggles.tagcloud = (function() {
 	};
 })();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
