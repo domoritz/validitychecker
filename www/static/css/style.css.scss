@@ -224,6 +224,7 @@ form.search {
 			padding-left: 0;
 		}
 		li a {
+			color: $grayLight;
 			display: inline-block;
 			margin: .2em .6em .2em 0;
 			padding: 2px 6px;
@@ -241,6 +242,10 @@ form.search {
 			color: #20578f !important;
 		}
 	}
+}
+
+.language-form {
+	display: none;
 }
 
 .actions {
