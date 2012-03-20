@@ -25,3 +25,14 @@ urlpatterns += patterns('',
     (r'^crossdomain\.xml$', direct_to_template,
      {'template': 'crossdomain.xml', 'mimetype': 'text/xml'}),
 )
+
+urlpatterns += patterns('',
+    (r'^i18n/', include('django.conf.urls.i18n')),
+)
+
+from django.conf import settings
+
+if 'rosetta' in settings.INSTALLED_APPS:
+    urlpatterns += patterns('',
+        url(r'^rosetta/', include('rosetta.urls')),
+    )
