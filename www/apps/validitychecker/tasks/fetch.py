@@ -17,6 +17,13 @@ from www.apps.validitychecker.utils.wokmws import WokmwsSoapClient
 from datetime import date, datetime
 import urllib
 
+@task(name='fetch.wok_soap_complete')
+def wok_soap_complete(number = 10, qobj=None, callback=None):
+    soap = prepare_client(number, qobj)
+    result = search_soap(soap, qobj, number)
+    records = extract_data(qobj, result)
+    return store_credible_in_db(qobj, records)
+
 @task(name='fetch.prepare_client')
 def prepare_client(number = 10, qobj=None, callback=None):
 
@@ -49,6 +56,7 @@ def prepare_client(number = 10, qobj=None, callback=None):
         logger.warning("New authentication. Got SID: %s" % soap.SID)
 
     if callback:
+        #return callback(soap, qobj, number)
         return subtask(callback).delay(soap, qobj, number)
     else:
         return soap
@@ -106,6 +114,9 @@ def extract_data(qobj, result, callback=None):
 #@transaction.commit_on_success
 @task(name='fetch.store_credible_in_db')
 def store_credible_in_db(qobj, records):
+    if not records:
+        return []
+
     for record in records:
         # add article
         article, _ = Article.objects.get_or_create(title=record['title'], defaults={'title': record['title'], 'publish_date': record['publish_date']})
@@ -134,6 +145,7 @@ def store_credible_in_db(qobj, records):
 
         # add article to query
         qobj.articles.add(article)
-        qobj.save()
+
+    qobj.save()
 
     return records

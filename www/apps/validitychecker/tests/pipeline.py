@@ -11,7 +11,7 @@ from django.test import TestCase
 from oktest import test, ok, NG
 
 from www.apps.validitychecker.tasks.scrape import make_scholar_urls, fetch_page, parse_scholar_page, store_non_credible_in_db
-from www.apps.validitychecker.tasks.fetch import prepare_client, search_soap, extract_data, store_credible_in_db
+from www.apps.validitychecker.tasks.fetch import prepare_client, search_soap, extract_data, store_credible_in_db, wok_soap_complete
 from www.apps.validitychecker.tasks.combined import combined_data_retrieve
 
 from celery.task import task, subtask
@@ -65,6 +65,19 @@ class ScrapeScholarPipelineTestCase(TestCase):
 # Fetch/SOAP Tests
 ###########################################
 
+class SoapCompleteTestCase(TestCase):
+    def setUp(self):
+        query='ice shield'
+        qobj, _ = Query.objects.get_or_create(query__iexact=query, defaults={'query':query})
+        qobj.save()
+
+        number = 10
+        self.result = wok_soap_complete.delay(number, qobj)
+        self.result.get()
+
+    @test("the complete soap should work")
+    def _(self):
+        ok(self.result.successful()) == True
 
 class SoapPipelineTestCase(TestCase):
     @classmethod
@@ -128,8 +141,16 @@ class CompleteRetrieveTestCase(TestCase):
 
     def setUp(self):
         self.result = self.__class__.result
-        self.result.get()
+        self.task_id = self.result.task_id
+        self.result.get() # blocking
+        self.qobj = self.__class__.qobj
         self.articles = self.__class__.qobj.articles.all()
+        self.qobj.task_id = self.task_id
+
+    @test("the task id should not be the default")
+    def _(self):
+        ok(self.task_id) != Query.DEFAULT_ID
+        ok(self.qobj.task_id) != Query.DEFAULT_ID
 
     @test("the complete pipeline should work")
     def _(self):

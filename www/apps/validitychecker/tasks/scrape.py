@@ -130,5 +130,7 @@ def store_non_credible_in_db(url, records, qobj):
 
         # add article to query
         qobj.articles.add(article)
-        qobj.save()
+
+    qobj.save()
+
     return records

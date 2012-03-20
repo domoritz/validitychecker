@@ -52,11 +52,14 @@ class Article(models.Model):
         app_label = 'validitychecker'
 
 class Query(models.Model):
+
+    DEFAULT_ID = '0000-0000-0000-0000'
+
     query = models.CharField(unique=True, max_length=255, blank=False, db_index=True)
     articles = models.ManyToManyField('Article', null=True, blank=True, verbose_name="articles matching this query")
     count = models.IntegerField(default=0, verbose_name="how often query has been used")
 
-    task_id = models.CharField(default='', max_length=255, null=True, db_index=True)
+    task_id = models.CharField(default=DEFAULT_ID, max_length=255, null=True, db_index=True)
 
     frozen = models.NullBooleanField(verbose_name="successful and task can be deleted") #TODO use this
 
@@ -75,7 +78,10 @@ class Query(models.Model):
         return AsyncResult(self.task_id).ready()
 
     def successful(self):
-        return AsyncResult(self.task_id).successful()
+        if self.task_id != self.DEFAULT_ID:
+            return AsyncResult(self.task_id).successful()
+        else:
+            return False
 
     last_updated = models.DateTimeField(auto_now=True)
 
