@@ -29,19 +29,19 @@ def combined_data_retrieve(query=None, number=10, qobj=None):
     qobj.task_id = combined_data_retrieve.request.id
     qobj.save()
 
+    #raise Exception
 
-    scholarurls = make_scholar_urls(qobj=qobj, number=number)
+                            # fetch more scholar because it's fast
+    scholarurls = make_scholar_urls(qobj=qobj, number=2*number)
 
     #########
     # non blocking
     #########
 
     # run wok/isi fetching and parsing
-    wok_results = [
-            get_wok_page.delay(qobj=qobj, number=number,
+    wok_result = get_wok_page.delay(qobj=qobj, number=number,
             callback=subtask(parse_wok_page,
-            callback=subtask(store_in_db, credible=False)))
-            for url in scholarurls]
+            callback=subtask(store_in_db, credible=True)))
 
     # run scholar fetching and parsing
     scholar_results = [
@@ -66,18 +66,25 @@ def combined_data_retrieve(query=None, number=10, qobj=None):
             result = result.get()
         scholar_records.append(result)
 
-    wok_records = []
-    #wait for fetching and parsing of scholar
-    for result in wok_results:
-        while isinstance(result, EagerResult) or isinstance(result, AsyncResult): # while result is not the last, do a step
-            result = result.get()
-        wok_records.append(result)
+    #wait for fetching and parsing of isi/wok
+    while isinstance(wok_result, EagerResult) or isinstance(wok_result, AsyncResult): # while result is not the last, do a step
+        wok_result = wok_result.get()
+    wok_records = wok_result
 
     # wait for soap api client to finish
     wok_api_records = wokws_data_result.get()
 
     logger.info("jobs returned results")
 
-    ret = {"isi":wok_records, "isi api":wok_api_records, "scholar":scholar_records}
+    ret = { "stats":
+            {
+                "isi": len(wok_records),
+                "isi api":len(wok_api_records),
+                "scholar":len(scholar_records)
+            },
+            "isi":wok_records,
+            "isi api":wok_api_records,
+            "scholar":scholar_records,
+        }
 
     return ret
