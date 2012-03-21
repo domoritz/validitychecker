@@ -12,17 +12,18 @@ The soap client will not save the data to the database so we have to do it here.
 from celery.task import task
 
 from www.apps.validitychecker.models import Article, Author
-
-
+from django.db import IntegrityError
 
 #@transaction.commit_on_success
 @task(name='scrape.store_in_db')
 def store_in_db(records, qobj, credible=False):
+    logger = store_in_db.get_logger()
     for record in records:
         # add article
         article, _ = Article.objects.get_or_create(title__iexact=record['title'], defaults={'title': record['title']})
 
-        article.credible = credible
+        if not article.credible:
+            article.credible = credible
 
         d = record['publish_date']
         if d:
@@ -42,11 +43,26 @@ def store_in_db(records, qobj, credible=False):
 
         article.save()
 
+        authors = []
         # add author and article to author
         for name in record['authors']:
-            author, _ = Author.objects.get_or_create(name=name)
-            author.articles.add(article)
-            author.save()
+            author, created = Author.objects.get_or_create(name=name)
+            if created:
+                author.save()
+            authors.append(author)
+
+        try:
+            # fast insert
+            article.author_set.add(*authors)
+
+            article.save()
+        except IntegrityError:
+            # there was a problem with bulk saving,
+            # so lets try it one by one
+            logger.warning("integrity error that was resolved")
+            for author in authors:
+                author.articles.add(article)
+                author.save()
 
         # add article to query
         qobj.articles.add(article)
