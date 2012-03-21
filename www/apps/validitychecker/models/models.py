@@ -37,10 +37,20 @@ class Article(models.Model):
 
     state = models.IntegerField(choices=QUERY_STATE, default=UNKNOWN, null=True)
 
-    is_credible = models.NullBooleanField(default=False, help_text="Indicates whether the article is in a index that lists credible articles")
-    times_cited_on_isi = models.IntegerField(default=0, null=True)
+    credible = models.NullBooleanField(blank=True, help_text="Indicates whether the article is in a index that lists credible articles")
+    times_cited_on_isi = models.IntegerField(null=True, blank=True)
 
     last_updated = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        """ automatically set complete if complete """
+        if self.state != Article.COMPLETE:
+            if self.state == Article.INCOMPLETE and self.snippet and self.url and self.publish_date and self.times_cited_on_isi:
+                # set as complete if all interesting things are set
+                self.state = Article.COMPLETE
+            else:
+                self.state = Article.INCOMPLETE
+        super(Article, self).save(*args, **kwargs) # Call the "real" save() method.
 
     def __unicode__(self):
         return u'%s' % self.title
@@ -66,7 +76,7 @@ class Query(models.Model):
     # celery task stuff
     def state(self):
         """returns the query status from the celery task"""
-        if self.successful:
+        if self.successful():
             return states.SUCCESS
         else:
             return AsyncResult(self.task_id).state
