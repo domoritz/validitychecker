@@ -24,7 +24,7 @@ def wok_soap_complete(number = 10, qobj=None, callback=None):
     return store_in_db(records=rec, qobj=qobj, credible=True)
 
 @task(name='fetch.prepare_client')
-def prepare_client(number = 10, qobj=None, callback=None):
+def prepare_client(number, qobj=None, callback=None):
 
     logger = prepare_client.get_logger()
     logger.info("Preaparing client")
