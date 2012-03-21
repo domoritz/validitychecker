@@ -37,6 +37,9 @@ def store_in_db(records, qobj, credible=False):
         if record.has_key('snippet'):
             article.snippet = record['snippet']
 
+        if record.has_key('times_cited'):
+            article.times_cited_on_isi = record['times_cited']
+
         article.save()
 
         # add author and article to author
