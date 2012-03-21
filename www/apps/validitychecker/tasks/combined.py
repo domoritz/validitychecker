@@ -19,7 +19,7 @@ from www.apps.validitychecker.tasks.fetch import prepare_client, search_soap, ex
 from www.apps.validitychecker.tasks.db import store_in_db
 
 #@transaction.commit_on_success
-@task(time_limit=60, name="combined.combined_data_retrieve")
+@task(time_limit=90, name="combined.combined_data_retrieve")
 def combined_data_retrieve(query=None, number=10, qobj=None):
 
     logger = combined_data_retrieve.get_logger()
@@ -36,6 +36,13 @@ def combined_data_retrieve(query=None, number=10, qobj=None):
     # non blocking
     #########
 
+    # run wok/isi fetching and parsing
+    wok_results = [
+            get_wok_page.delay(qobj=qobj, number=number,
+            callback=subtask(parse_wok_page,
+            callback=subtask(store_in_db, credible=False)))
+            for url in scholarurls]
+
     # run scholar fetching and parsing
     scholar_results = [
             fetch_page_from_url.delay(url=url, qobj=qobj,
@@ -45,13 +52,6 @@ def combined_data_retrieve(query=None, number=10, qobj=None):
 
     # wok api fetching
     wokws_data_result = wok_soap_complete.delay(number=number, qobj=qobj)
-
-    # run wok/isi fetching and parsing
-    scholar_results = [
-            get_wok_page.delay(qobj=qobj, number=number,
-            callback=subtask(parse_wok_page,
-            callback=subtask(store_in_db, credible=False)))
-            for url in scholarurls]
 
     logger.info("submitted all jobs")
 
@@ -66,11 +66,18 @@ def combined_data_retrieve(query=None, number=10, qobj=None):
             result = result.get()
         scholar_records.append(result)
 
+    wok_records = []
+    #wait for fetching and parsing of scholar
+    for result in wok_results:
+        while isinstance(result, EagerResult) or isinstance(result, AsyncResult): # while result is not the last, do a step
+            result = result.get()
+        wok_records.append(result)
+
     # wait for soap api client to finish
-    wpk_records = wokws_data_result.get()
+    wok_api_records = wokws_data_result.get()
 
     logger.info("jobs returned results")
 
-    ret = wpk_records, scholar_records
+    ret = {"isi":wok_records, "isi api":wok_api_records, "scholar":scholar_records}
 
     return ret
