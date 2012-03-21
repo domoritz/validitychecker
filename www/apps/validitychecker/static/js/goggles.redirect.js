@@ -6,6 +6,8 @@ Goggles.redirect = (function() {
 	query = ''
 
 	function init() {
+		$('#errorwrapper').hide();
+
 		$('input[type=submit].search').click(function(){
 
 			var query = encodeURI($('#query').val())
@@ -31,6 +33,7 @@ Goggles.redirect = (function() {
 					}, 1000);
 				} else {
 					// error...
+					$('#errorwrapper').slideDown().find('.more').html("<strong>"+data.error+ "</strong> " + data.message);
 					$('#query').removeClass('working');
 				}
 			}
