@@ -20,7 +20,7 @@ class Article(models.Model):
     UNKNOWN = 0
     INCOMPLETE = 1
     COMPLETE = 2
-    INVALID = 2
+    INVALID = 3
 
     QUERY_STATE = (
         (UNKNOWN, 'Unknown'),
