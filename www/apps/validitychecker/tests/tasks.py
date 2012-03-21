@@ -25,12 +25,14 @@ from www.apps.validitychecker.utils.wokmws import WokmwsSoapClient
 # Scrape Tests
 ###########################################
 
-class FetchContentTest(TestCase):
-    def setUp(self):
-        """
-        Tests that fetch_page_from_url returns something
-        """
+# scholar
+#########
 
+class FetchScholarContentTest(TestCase):
+    """
+    Tests that fetch_page_from_url returns something
+    """
+    def setUp(self):
         url = 'http://scholar.google.com/scholar?as_sdt=1&as_vis=1&num=10&q=solar+flare'
         qobj = None
 
@@ -41,7 +43,7 @@ class FetchContentTest(TestCase):
         ok (self.result).is_a(str)
         ok (len(self.result)) > 10
 
-class ParseTest(TestCase):
+class ParseScholarTest(TestCase):
     """
     tests the scholar parser
     """
@@ -87,7 +89,7 @@ class WriteScrapedToDBTest(TestCase):
                 'source': u'Journal of Geophysical Research', \
                 'publish_date': date(1993, 1, 1), \
                 'authors': [u'JT Gosling', u'J Doe']}]
-        db.store_non_credible_in_db('solar flare', records, qobj)
+        db.store_in_db(records=records, qobj=qobj, credible=False)
 
         self.article = Article.objects.get(title='The solar flare myth')
 
@@ -101,17 +103,13 @@ class WriteScrapedToDBTest(TestCase):
         ok(self.article.url) == 'http://www.agu.org/pubs/crossref/1993/93JA01896.shtml'
         ok(self.article.snippet) == u'Many years of re ... !@#$%^&*() äüöƒß solar flares. This result has led to a  ...'
 
-    @test("source should not be defined because scholar is not credible")
-    def _(self):
-        ok(self.article.source) != 'Journal of Geophysical Research'
-
     @test("publish date should be date and right")
     def _(self):
         ok(self.article.publish_date) == date(1993, 1, 1)
 
     @test("article should not be credible")
     def _(self):
-        ok(self.article.is_credible) == False
+        ok(self.article.credible) == False
 
     @test("J Doe should be an author")
     def _(self):
@@ -123,6 +121,65 @@ class WriteScrapedToDBTest(TestCase):
         author = Author.objects.get(name='J Doe')
         ok(author.articles.all()).contains(self.article)
 
+# wok
+#########
+
+class FetchWosContentTest(TestCase):
+    """
+    Tests that the get_wok_page task works
+    """
+    def setUp(self):
+        query='solar flare'
+        number = 10
+        qobj, _ = Query.objects.get_or_create(query__iexact=query, defaults={'query':query})
+        self.page = scrape.get_wok_page(qobj, number)
+
+    @test("wok page should not be empty")
+    def _(self):
+        ok (self.page).is_a(str)
+        ok (len(self.page)) > 10
+
+
+class ParseWokTest(TestCase):
+    """
+    tests the scholar parser
+    """
+    def setUp(self):
+        f = open(os.path.dirname(os.path.realpath(__file__))+'/data/wok_solar_flare.html', 'r')
+
+        page = f.read()
+        qobj = None
+
+        self.records = scrape.parse_wok_page(page, qobj)
+
+        #from pprint import pprint
+        #pprint(self.records)
+
+    @test("parsing should return 100 items")
+    def _(self):
+        ok (self.records).is_a(list).length(100)
+
+
+    @test("records should be dict with entries")
+    def _(self):
+        for record in self.records:
+            ok (record).contains('title')
+            ok (record).contains('publish_date')
+            ok (record).contains('authors')
+            ok (record).contains('source')
+            ok (record).contains('times_cited')
+
+    @test("entries should be parsed correctly")
+    def _(self):
+        for record in self.records:
+            ok (len(record['title'])) > 0
+            ok (len(record['source'])) > 0
+            ok (len(record['authors'])) > 0
+            ok (len(record['source'])) > 0
+
+            ok (record['times_cited']) != None
+            ok (record['authors']).is_a(list)
+            ok (record['publish_date']).is_a(date)
 
 ###########################################
 # Fetch/SOAP Tests
