@@ -38,7 +38,7 @@ def authors_and_articles_for_query(qobj):
     """
 
     # get credible articles for query
-    articles = qobj.articles.filter(is_credible=True).all() # articles for query
+    articles = qobj.articles.filter(credible=True).all() # articles for query
 
     # add .prefetch_related('articles') if supported by dango version
     authors = Author.objects.filter(articles__in=articles)\
