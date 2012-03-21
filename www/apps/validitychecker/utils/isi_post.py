@@ -33,7 +33,7 @@ class IsiFetcher():
         #    'collapse_title' : 'Collapse these settings',
             'defaultCollapsedListStatus' : 'display: none',
             'defaultEditionsStatus' : 'display: block',
-            'editions' : 'SCI',
+        #    'editions' : 'SCI',
         #    'editions' : 'SSCI',
             'endYear' : '2012',
             'expand_alt' : 'Expand these settings',
@@ -110,4 +110,4 @@ class IsiFetcher():
 
 if __name__ == "__main__":
     f = IsiFetcher()
-    print f.fetch('solar flare', 10)
+    print f.fetch('do sunspots matter', 100)
