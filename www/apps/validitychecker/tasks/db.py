@@ -20,7 +20,7 @@ from www.apps.validitychecker.models import Article, Author
 def store_in_db(records, qobj, credible=False):
     for record in records:
         # add article
-        article, _ = Article.objects.get_or_create(title=record['title'], defaults={'title': record['title']})
+        article, _ = Article.objects.get_or_create(title__iexact=record['title'], defaults={'title': record['title']})
 
         article.credible = credible
 
