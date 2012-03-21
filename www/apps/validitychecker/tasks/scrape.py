@@ -26,7 +26,7 @@ def make_scholar_urls(number, qobj, callback=None):
     else:
         return urls
 
-@task(time_limit=30, name='scrape.fetch_page_from_url')
+@task(time_limit=25, name='scrape.fetch_page_from_url')
 def fetch_page_from_url(url, qobj, callback=None):
 
     logger = fetch_page_from_url.get_logger()
@@ -66,6 +66,9 @@ def parse_scholar_page(url, page, qobj, callback=None):
 
         records.append(record)
 
+    logger = parse_wok_page.get_logger()
+    logger.warning("Got %d results for the query '%s' from scholar" % (len(records), qobj.query))
+
     if callback:
         return subtask(callback).delay(records, qobj)
     else:
@@ -74,16 +77,14 @@ def parse_scholar_page(url, page, qobj, callback=None):
 
 # Web of Knwoledge
 
-@task(time_limit=30, name='scrape.get_wok_page')
+@task(time_limit=45, name='scrape.get_wok_page', max_retries=3)
 def get_wok_page(qobj, number, callback=None):
-
     logger = get_wok_page.get_logger()
-
     # get session id from db
-    sobj, created = KeyValue.objects.get_or_create(key='SID')
+    sobj, created = KeyValue.objects.get_or_create(key='SID_web')
 
-    # lazy invalid function, invalid if older than 30 minutes
-    valid = lambda: (datetime.now() - sobj.created_at).seconds/60 < 30
+    # lazy invalid function, invalid if older than 10 minutes
+    valid = lambda: (datetime.now() - sobj.created_at).seconds/60 < 10
 
     if not created and valid():
         # get latest session id, avoid problems when no id is defined
@@ -91,7 +92,7 @@ def get_wok_page(qobj, number, callback=None):
 
         # initialize fetcher with SID!
         fetcher = IsiFetcher(sid=sessionid)
-        logger.warning("SID from db: %s" % sessionid)
+        logger.warning("SID for web from db: %s" % sessionid)
     else:
         # without SID/ new sid
         fetcher = IsiFetcher()
@@ -110,9 +111,10 @@ def get_wok_page(qobj, number, callback=None):
     else:
         return page
 
-
 @task(name='scrape.parse_wok_page')
 def parse_wok_page(page, qobj, callback=None):
+    logger = parse_wok_page.get_logger()
+
     parser = etree.HTMLParser()
     tree = etree.parse(StringIO(page), parser)
 
@@ -138,8 +140,10 @@ def parse_wok_page(page, qobj, callback=None):
 
         records.append(record)
 
+    logger.warning("Got %d results for the query '%s' from isi/wok" % (len(records), qobj.query))
+
     if callback:
-        return subtask(callback).delay(records=records, qobj=qobj, credible=True)
+        return subtask(callback).delay(records=records, qobj=qobj)
     else:
         return records
 

@@ -49,12 +49,16 @@ class ParseScholarTest(TestCase):
     """
     def setUp(self):
         f = open(os.path.dirname(os.path.realpath(__file__))+'/data/scholar_solar_flare.html', 'r')
+        #f = open(os.path.dirname(os.path.realpath(__file__))+'/data/scholar_sunspots_matter.html', 'r')
 
         url = 'http://scholar.google.com/scholar?as_sdt=1&num=10&q=solar+flare'
         page = f.read()
-        qobj = None
 
-        _, self.records = scrape.parse_scholar_page(url, page, qobj)
+        page = f.read()
+        query='solar flare'
+        qobj, _ = Query.objects.get_or_create(query=query, defaults={'query':query})
+
+        _, self.records = scrape.parse_scholar_page(url=url, page=page, qobj=qobj)
 
     @test("parsing should return 10 items")
     def _(self):
@@ -81,7 +85,7 @@ class ParseScholarTest(TestCase):
 class WriteScrapedToDBTest(TestCase):
     def setUp(self):
         query='solar flare'
-        qobj, _ = Query.objects.get_or_create(query__iexact=query, defaults={'query':query})
+        qobj, _ = Query.objects.get_or_create(query=query, defaults={'query':query})
 
         records = [{'title': u'The solar flare myth', \
                 'url': u'http://www.agu.org/pubs/crossref/1993/93JA01896.shtml', \
@@ -148,7 +152,8 @@ class ParseWokTest(TestCase):
         f = open(os.path.dirname(os.path.realpath(__file__))+'/data/wok_solar_flare.html', 'r')
 
         page = f.read()
-        qobj = None
+        query='solar flare'
+        qobj, _ = Query.objects.get_or_create(query=query, defaults={'query':query})
 
         self.records = scrape.parse_wok_page(page, qobj)
 
