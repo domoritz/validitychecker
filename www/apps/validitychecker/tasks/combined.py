@@ -11,16 +11,15 @@ The soap client will not save the data to the database so we have to do it here.
 
 from celery.result import AsyncResult, EagerResult
 from celery.task import task, subtask
-from celery.task.sets import TaskSet
-
-from www.apps.validitychecker.models import Query
+#from celery.task.sets import TaskSet
 
 from www.apps.validitychecker.tasks.scrape import make_scholar_urls, fetch_page_from_url, parse_scholar_page
+from www.apps.validitychecker.tasks.scrape import parse_wok_page, get_wok_page
 from www.apps.validitychecker.tasks.fetch import prepare_client, search_soap, extract_data, wok_soap_complete
-from www.apps.validitychecker.tasks.db import store_non_credible_in_db, store_credible_in_db
+from www.apps.validitychecker.tasks.db import store_in_db
 
 #@transaction.commit_on_success
-@task(time_limit=30, name="combined.combined_data_retrieve")
+@task(time_limit=60, name="combined.combined_data_retrieve")
 def combined_data_retrieve(query=None, number=10, qobj=None):
 
     logger = combined_data_retrieve.get_logger()
@@ -39,13 +38,20 @@ def combined_data_retrieve(query=None, number=10, qobj=None):
 
     # run scholar fetching and parsing
     scholar_results = [
-            fetch_page_from_url.delay(url, qobj,
+            fetch_page_from_url.delay(url=url, qobj=qobj,
             callback=subtask(parse_scholar_page,
-            callback=subtask(store_non_credible_in_db)))
+            callback=subtask(store_in_db, credible=False)))
             for url in scholarurls]
 
     # wok api fetching
     wokws_data_result = wok_soap_complete.delay(number=number, qobj=qobj)
+
+    # run wok/isi fetching and parsing
+    scholar_results = [
+            get_wok_page.delay(qobj=qobj, number=number,
+            callback=subtask(parse_wok_page,
+            callback=subtask(store_in_db, credible=False)))
+            for url in scholarurls]
 
     logger.info("submitted all jobs")
 
