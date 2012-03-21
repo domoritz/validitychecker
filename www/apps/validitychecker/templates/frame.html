@@ -70,6 +70,10 @@
 		</div> {# end of #container #}
 		{% endblock %}
 
+		<div class="invisible">
+			{% block hidden %}{% endblock %}
+		</div>
+
 		{% block footer_js %}
 
 		{% load compress %}

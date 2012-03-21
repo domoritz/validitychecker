@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% comment %}
+{% block css %}{% include_media 'base.css' %}{% endblock %}
+{% endcomment %}
+{% block extra_css %}{% endblock %}
+{% block extra_js %}{% endblock %}
+
+{% block title %}Climate Goggles{% endblock %}
+
+{% block header %}
+<header>
+<h1><a href="{% url home %}" title="Climate Goggles">Climate Goggles</a></h1>
+</header>
+{% endblock %}
+
+{% block navigation %}{% endblock %}
+
+{% block footer %}
+<footer>
+<p><a href="http://www.rhok.org/solutions/climate-goggles">{% trans "Solution" %}</a> {% trans "for" %} <a href="http://www.rhok.org/event/berlin-germany">Random Hacks of Kindness Berlin 2011</a> | <a href="/statistics">{% trans "Statistics" %}</a></p>
+<p>{% trans "Built in Berlin" %}</p>
+</footer>
+{% endblock %}
+
+{% block content %}
+<div class="content">
+	{% block search %}
+	<form class="search" method="get" action="{{ target }}">
+		<fieldset>
+			<label for="query">
+				<span class="visuallyhidden">{% trans "Climate science theory" %}</span>
+				<input id="query" name="query" class="" required autofocus placeholder="{% trans "Enter a theory" %}" type="search" />
+			</label>
+			<input type="submit" class="search" value="{% trans "Search" %}" />
+		</fieldset>
+	</form>
+	{% endblock%}
+
+	{% block main-content %}{% endblock %}
+</div>
+{% endblock%}
