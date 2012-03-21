@@ -9,7 +9,8 @@ import re
 
 a_first = lambda x: x[0] if x else ''
 a_join = lambda x: ''.join(x)
-a_split = lambda x: x.split(',')
+a_split_komma = lambda x: x.split(',')
+a_split_semicolon = lambda x: x.split(';')
 
 def a_date(y):
     if y: # year may be 0 if nothing found
