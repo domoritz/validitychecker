@@ -26,7 +26,14 @@ def a_find(string, pattern):
     else:
         return ''
 
-a_int = lambda i: int(i) if i else 0
+#a_int = lambda i: int(i) if i else 0
+
+def a_int(i):
+    try:
+        return int(i) if i else 0
+    except ValueError:
+        print "no int", i
+        return 0
 
 def a_trim(n):
     n = n.strip()
