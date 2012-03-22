@@ -43,7 +43,7 @@ This Version requires a little bit more work that version 1 since it is more pow
     git co develop
     sudo apt-get install python python-pip python-dev sqlite3 redis
     # use virtualenv if possible!
-    pip install -r devel-req.txt
+    pip install -r requirements.txt 
     cd validitychecker/www/bin/
     python manage.py syncdb --noinput
     python manage.py migrate
@@ -55,7 +55,7 @@ Run these three command in different sessions on your command line
     redis-server /usr/local/etc/redis.conf
 
     # run celery
-    python manage.py celeryd -l INFO -E
+    python manage.py celeryd -l INFO -E -B
 
     # run django
     python manage.py runserver
