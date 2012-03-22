@@ -19,7 +19,7 @@ from www.apps.validitychecker.tasks.fetch import prepare_client, search_soap, ex
 from www.apps.validitychecker.tasks.db import store_in_db
 
 #@transaction.commit_on_success
-@task(time_limit=90, name="combined.combined_data_retrieve")
+@task(time_limit=90, name="combined.combined_data_retrieve", max_retries=0)
 def combined_data_retrieve(query=None, number=10, qobj=None):
 
     logger = combined_data_retrieve.get_logger()
@@ -29,10 +29,7 @@ def combined_data_retrieve(query=None, number=10, qobj=None):
     qobj.task_id = combined_data_retrieve.request.id
     qobj.save()
 
-    #raise Exception
-
-                            # fetch more scholar because it's fast
-    scholarurls = make_scholar_urls(qobj=qobj, number=2*number)
+    scholarurls = make_scholar_urls(qobj=qobj, number=number)
 
     #########
     # non blocking
