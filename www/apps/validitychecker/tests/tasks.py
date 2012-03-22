@@ -48,39 +48,43 @@ class ParseScholarTest(TestCase):
     tests the scholar parser
     """
     def setUp(self):
-        f = open(os.path.dirname(os.path.realpath(__file__))+'/data/scholar_solar_flare.html', 'r')
-        #f = open(os.path.dirname(os.path.realpath(__file__))+'/data/scholar_sunspots_matter.html', 'r')
+        files = [open(os.path.dirname(os.path.realpath(__file__))+'/data/scholar_solar_flare.html', 'r'),
+            open(os.path.dirname(os.path.realpath(__file__))+'/data/scholar_sunspots_matter.html', 'r')]
 
-        url = 'http://scholar.google.com/scholar?as_sdt=1&num=10&q=solar+flare'
-        page = f.read()
+        pages = [f.read() for f in files]
 
-        page = f.read()
-        query='solar flare'
-        qobj, _ = Query.objects.get_or_create(query=query, defaults={'query':query})
+        queries=['solar flare', 'do sunspots matter']
+        qobjs= [Query.objects.get_or_create(query=query, defaults={'query':query})[0] for query in queries]
 
-        _, self.records = scrape.parse_scholar_page(url=url, page=page, qobj=qobj)
+        self.records = [scrape.parse_scholar_page(url=None, page=pages[x], qobj=qobjs[x])[1] for x in range(2)]
 
-    @test("parsing should return 10 items")
+    @test("parsing should return 10 items for first file")
     def _(self):
-        ok (self.records).is_a(list).length(10)
+        ok (self.records[0]).is_a(list).length(10)
+
+    @test("parsing should return 100 items for second file")
+    def _(self):
+        ok (self.records[1]).is_a(list).length(100)
 
     @test("records should be dict with entries")
     def _(self):
-        for record in self.records:
-            ok (record).contains('title')
-            ok (record).contains('snippet')
-            ok (record).contains('publish_date')
-            ok (record).contains('source')
-            ok (record).contains('authors')
+        for records in self.records:
+            for record in records:
+                ok (record).contains('title')
+                ok (record).contains('snippet')
+                ok (record).contains('publish_date')
+                ok (record).contains('source')
+                ok (record).contains('authors')
 
     @test("entries should be parsed correctly")
     def _(self):
-        for record in self.records:
-            ok (len(record['title'])) > 0
-            ok (len(record['snippet'])) > 0
-            ok (len(record['source'])) > 0
-            ok (len(record['authors'])) > 0
-            ok (record['publish_date']).is_a(date)
+        for records in self.records:
+            for record in records:
+                ok (len(record['title'])) > 0
+                ok (len(record['snippet'])) > 0
+                ok (record['source']).is_a(unicode)
+                ok (len(record['authors'])) > 0
+                ok (record['publish_date']).is_a(date)
 
 class WriteScrapedToDBTest(TestCase):
     def setUp(self):
@@ -149,42 +153,55 @@ class ParseWokTest(TestCase):
     tests the scholar parser
     """
     def setUp(self):
-        f = open(os.path.dirname(os.path.realpath(__file__))+'/data/wok_solar_flare.html', 'r')
+        files = [open(os.path.dirname(os.path.realpath(__file__))+'/data/wok_solar_flare.html', 'r'),
+            open(os.path.dirname(os.path.realpath(__file__))+'/data/wok_bad_test.html', 'r')
+            ]
 
-        page = f.read()
-        query='solar flare'
-        qobj, _ = Query.objects.get_or_create(query=query, defaults={'query':query})
 
-        self.records = scrape.parse_wok_page(page, qobj)
+        pages = [f.read() for f in files]
+
+        queries=['solar flare', 'bad test']
+        qobjs= [Query.objects.get_or_create(query=query, defaults={'query':query})[0] for query in queries]
+
+        self.records = [scrape.parse_wok_page(page=page, qobj=qobj) for page, qobj in zip(pages, qobjs)]
 
         #from pprint import pprint
-        #pprint(self.records)
+        #pprint(self.records[0])
 
     @test("parsing should return 100 items")
     def _(self):
-        ok (self.records).is_a(list).length(100)
+        ok (self.records[0]).is_a(list).length(100)
 
+    @test("parsing should return 81 items")
+    def _(self):
+        ok (self.records[1]).is_a(list).length(81)
 
     @test("records should be dict with entries")
     def _(self):
-        for record in self.records:
-            ok (record).contains('title')
-            ok (record).contains('publish_date')
-            ok (record).contains('authors')
-            ok (record).contains('source')
-            ok (record).contains('times_cited')
+        for records in self.records:
+            for record in records:
+                ok (record).contains('title')
+                ok (record).contains('publish_date')
+                ok (record).contains('authors')
+                ok (record).contains('source')
+                ok (record).contains('times_cited')
 
     @test("entries should be parsed correctly")
     def _(self):
-        for record in self.records:
-            ok (len(record['title'])) > 0
-            ok (len(record['source'])) > 0
-            ok (len(record['authors'])) > 0
-            ok (len(record['source'])) > 0
+        for records in self.records:
+            for record in records:
+                ok (len(record['title'])) > 0
+                ok (len(record['source'])) > 0
+                ok (len(record['authors'])) > 0
+                ok (len(record['source'])) > 0
 
-            ok (record['times_cited']) != None
-            ok (record['authors']).is_a(list)
-            ok (record['publish_date']).is_a(date)
+                ok (record['times_cited']) != None
+                ok (record['authors']).is_a(list)
+
+                #print record['publish_date'], record['title']
+                ok (record['publish_date']).is_a(date)
+
+                ok (record['publish_date'].year) > 1700
 
 ###########################################
 # Fetch/SOAP Tests

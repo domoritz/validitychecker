@@ -110,4 +110,4 @@ class IsiFetcher():
 
 if __name__ == "__main__":
     f = IsiFetcher()
-    print f.fetch('do sunspots matter', 100)
+    print f.fetch('ein test', 100)
