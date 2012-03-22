@@ -23,8 +23,14 @@ def status(request, query):
     qobj, created = Query.objects.get_or_create(query__iexact=query, defaults={'query':query})
 
     if created or qobj.failed():
+        logger.warning("started new task for query %s" % qobj.query)
+
         result = combined_data_retrieve.delay(number=100, qobj=qobj)
         logger.info('running a task with the id %s for the query "%s"' % (result.task_id, query))
+
+        # save task id
+        qobj.task_id = result.task_id
+        qobj.save()
 
     querymessage = str(qobj.result()) if qobj.failed() else ''
     errtype = type(qobj.result()).__name__ if qobj.failed() else ''
