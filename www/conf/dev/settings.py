@@ -53,6 +53,10 @@ LOGGING = {
     }
 }
 
+#########
+# Celery
+#########
+
 #CELERY_ALWAYS_EAGER = True
 #CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 CELERYD_CONCURRENCY = 10
@@ -61,6 +65,18 @@ ADMINS = (
     ('You', 'your@email'),
 )
 MANAGERS = ADMINS
+
+
+from datetime import timedelta
+
+# backend cleanup
+CELERYBEAT_SCHEDULE = {
+    "runs-every-30-minutes": {
+        "task": "celery.backend_cleanup",
+        "schedule": timedelta(minutes=30)
+    },
+}
+
 
 #########
 # Debug toolbar

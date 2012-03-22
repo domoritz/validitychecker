@@ -156,14 +156,19 @@ MIDDLEWARE_CLASSES = (
 
 # use redis
 BROKER_URL = "redis://localhost:6379/0"
+BROKER_USER = ""
+BROKER_PASSWORD =""
+BROKER_VHOST = "0"
+REDIS_CONNECT_RETRY = True
 
+#CELERY_SEND_EVENTS=True use -E option instead
 CELERY_RESULT_BACKEND = "redis"
 CELERY_REDIS_HOST = "localhost"
 CELERY_REDIS_PORT = 6379
 CELERY_REDIS_DB = 0
 
-import djcelery
-djcelery.setup_loader()
+CELERY_TASK_RESULT_EXPIRES =  10
+CELERYBEAT_SCHEDULER="djcelery.schedulers.DatabaseScheduler"
 
 ## Worker settings
 ## If you're doing mostly I/O you can have more processes,
@@ -189,6 +194,9 @@ CELERYD_TASK_TIME_LIMIT = 180 # maximum time you have to wait for a task
 #CELERY_ANNOTATIONS = {"*": {"on_failure": my_on_failure}}
 
 TEST_RUNNER = 'djcelery.contrib.test_runner.CeleryTestSuiteRunner'
+
+import djcelery
+djcelery.setup_loader()
 
 #==============================================================================
 # Apps
