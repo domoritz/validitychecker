@@ -12,7 +12,7 @@ from oktest import test, ok
 import oktest
 oktest.DIFF = repr
 
-from www.apps.validitychecker.utils.isi_post import IsiFetcher
+from www.apps.validitychecker.utils.isi_fetcher import IsiFetcher
 
 class IsiFetcherTestCase(TestCase):
     """

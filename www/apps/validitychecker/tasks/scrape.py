@@ -5,7 +5,7 @@ from celery.task import task, subtask
 
 from www.apps.validitychecker.models import Query, Article, Author, KeyValue
 from www.apps.validitychecker.utils.perform import *
-from www.apps.validitychecker.utils.isi_post import IsiFetcher
+from www.apps.validitychecker.utils.isi_fetcher import IsiFetcher
 
 from lxml import etree
 import urllib2, urllib
