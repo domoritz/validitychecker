@@ -122,14 +122,13 @@ def parse_wok_page(page, qobj, callback=None):
 
     # to be returned
     records = []
-
     for element in elements:
         record = {}
         record['title'] = perform(element.xpath('a/value//text()'), a_join, unicode)
         record['source'] = perform(element.xpath('span[contains(text(),"Source")]/following-sibling::text()')[0], unicode, unicode.strip)
         record['authors'] = perform(element.xpath('span[contains(text(),"Author")]/following-sibling::text()')[0], unicode, a_split_semicolon, m_trim)
-        record['publish_date'] = perform(element.xpath('span[@class="data_bold"]/text()')[-1], lambda x: a_find(x, r'(\d{4})'),a_int, a_date)
-        record['times_cited'] = perform(element.xpath('a//text()')[-1], lambda s: s.replace(',',''), a_int)
+        record['publish_date'] = perform(element.xpath('span[contains(text(),"Published")]/following::text()')[1], lambda x: a_find(x, r'(\d{4})'),a_int, a_date)
+        record['times_cited'] = perform(element.xpath('span[contains(text(),"Times Cited")]/following::text()')[1], a_trim, lambda s: s.replace(',',''), a_int)
 
 
         # remove et al
