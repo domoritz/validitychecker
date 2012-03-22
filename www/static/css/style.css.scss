@@ -384,6 +384,9 @@ footer {
 		background-color: #F2DEDE;
 		border: 2px solid #F99;
 		border-top: none;
+		position: relative;
+
+		text-shadow: 0 1px 0 $white;
 
 		@include rounded(bottom-right, 5px);
 		@include rounded(bottom-left, 5px);
@@ -394,6 +397,24 @@ footer {
 		.more {
 			margin-top: 10px;
 			font-size: 0.8em;
+		}
+
+		.close {
+			display: block;
+			font-family: "Helvetica Neue",Consolas,Verdana,Tahoma,Calibri,Helvetica,Menlo,"Droid Sans",sans-serif;
+			font-size: 20px;
+			line-height: 20px;
+			text-align: center;
+			width: 20px;
+			color: $grayLight;
+
+			cursor: pointer;
+			position: absolute;
+			right: 17px;
+			top: 8px;
+			&:hover {
+				color: $gray;
+			}
 		}
 	}
 }

@@ -3,19 +3,26 @@
    */
 
 Goggles.redirect = (function() {
-	query = ''
+	query = '';
 
 	function init() {
 		$('#errorwrapper').hide();
 
 		$('input[type=submit].search').click(function(){
 
-			var query = encodeURI($('#query').val())
-			console.log(query)
-			check(query)
+			$('#errorwrapper').slideUp();
+
+			var query = encodeURI($('#query').val());
+			console.log(query);
+			check(query);
 
 			return false;
-		})
+		});
+
+		$('.close').click(function(){
+			$('#errorwrapper').slideUp('fast');
+		});
+
 	}
 
 	function check(query) {
@@ -30,7 +37,7 @@ Goggles.redirect = (function() {
 				} else if (data.status in {'PENDING':1, 'STARTED':1, 'RETRY':1}) {
 					window.setTimeout(function () {
 						check(query);
-					}, 1000);
+					}, 2500);
 				} else {
 					// error...
 					$('#errorwrapper').slideDown().find('.more').html("<strong>"+data.error+ "</strong> " + data.message);
