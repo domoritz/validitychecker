@@ -83,8 +83,8 @@ def get_wok_page(qobj, number, callback=None):
     # get session id from db
     sobj, created = KeyValue.objects.get_or_create(key='SID_web')
 
-    # lazy invalid function, invalid if older than 10 minutes
-    valid = lambda: (datetime.now() - sobj.created_at).seconds/60 < 10
+    # lazy invalid function, invalid if older than 20 minutes
+    valid = lambda: (datetime.now() - sobj.created_at).seconds/60 < 20
 
     if not created and valid():
         # get latest session id, avoid problems when no id is defined

@@ -22,7 +22,7 @@ def status(request, query):
 
     qobj, created = Query.objects.get_or_create(query__iexact=query, defaults={'query':query})
 
-    if created or qobj.failed():
+    if created:# or qobj.failed():
         logger.warning("started new task for query %s" % qobj.query)
 
         result = combined_data_retrieve.delay(number=100, qobj=qobj)

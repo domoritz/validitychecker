@@ -33,8 +33,8 @@ def prepare_client(number, qobj=None, callback=None):
     # not getting a new sid for each query avoids throttling
     sobj, created = KeyValue.objects.get_or_create(key='SID')
 
-    # lazy invalid function, invalid if older than 30 minutes
-    valid = lambda: (datetime.now() - sobj.created_at).seconds/60 < 30
+    # lazy invalid function, invalid if older than 45 minutes
+    valid = lambda: (datetime.now() - sobj.created_at).seconds/60 < 45
 
     soap = None
     if not created and valid():

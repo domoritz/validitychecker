@@ -27,7 +27,7 @@ def hello():
     print("Hello world!")
 
 def start():
-    """ instructions """
+    """ Instructions """
     print """run in separate shells with active virtualenv:
         fab run_redis
         fab run_celeryd
@@ -54,7 +54,7 @@ def run_celerycam():
         local("python manage.py celerycam")
 
 def run_django_production():
-    """ runs the server in production mode """
+    """ Runs the server in production mode """
     print "IN DEVELOPMENT"
     with lcd(BIN_DIRECTORY):
         local("python manage.py collectstatic")
@@ -62,16 +62,18 @@ def run_django_production():
         local("python manage.py run_gunicorn --workers 5 --settings=www.conf.dev.settings")
 
 def run_nginx():
+    """ start nginx for serving statics """
     local("nginx -c %c" % NGINX_CONF)
-
 
 def test(test_class=None):
     """ Test the main app """
+    result = None
     with lcd(BIN_DIRECTORY):
         if test_class:
             result = local('python manage.py test validitychecker.%s -v 2' % test_class, capture=True)
         else:
             result = local('python manage.py test validitychecker -v 2', capture=True)
+
     if result.failed and not confirm("Tests failed. Continue anyway?"):
         abort("Aborting at user request.")
 
@@ -148,12 +150,13 @@ def update_django_project():
             run('python manage.py collectstatic --noinput')
 
 def restart_webserver():
-    """ Restarts remote nginx and uwsgi.
+    """ Restarts remote nginx and gunicorn.
     """
-    sudo("service uwsgi restart")
+    #sudo("service uwsgi restart") # TODO gunicorn restart
     sudo("/etc/init.d/nginx restart")
 
 def deploy():
+    """ IN DEVELOPMENT """
     code_dir = '/srv/django/myproject'
     with settings(warn_only=True):
         if run("test -d %s" % code_dir).failed:
