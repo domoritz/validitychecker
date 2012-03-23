@@ -53,6 +53,10 @@ LOGGING = {
     }
 }
 
+#########
+# Celery
+#########
+
 #CELERY_ALWAYS_EAGER = True
 #CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 CELERYD_CONCURRENCY = 10
@@ -62,10 +66,35 @@ ADMINS = (
 )
 MANAGERS = ADMINS
 
+
+from datetime import timedelta
+
+# backend cleanup
+CELERYBEAT_SCHEDULE = {
+    "runs-every-30-minutes": {
+        "task": "celery.backend_cleanup",
+        "schedule": timedelta(minutes=30)
+    },
+}
+
+
+#########
+# Debug toolbar
+#########
+
+MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + ('debug_toolbar.middleware.DebugToolbarMiddleware',)
+INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',)
+INTERNAL_IPS = ('127.0.0.1',)
+
+DEBUG_TOOLBAR_CONFIG = {
+    'INTERCEPT_REDIRECTS': False,
+}
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(PROJECT_ROOT, 'db' ,'dev.db'),
+        'NAME': os.path.join(PROJECT_ROOT, 'db' ,'dev.sqlite'),
 #        'USER': '',                      # Not used with sqlite3.
 #        'PASSWORD': '',                  # Not used with sqlite3.
 #        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.

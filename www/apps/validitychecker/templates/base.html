@@ -17,6 +17,24 @@
 
 {% block navigation %}{% endblock %}
 
+{% block content %}
+{% block top-content %}{% endblock %}
+
+{% block search %}
+<form class="search" method="get" action="{{ target }}">
+	<fieldset>
+		<label for="query">
+			<span class="visuallyhidden">{% trans "Climate science theory" %}</span>
+			<input id="query" name="query" class="" required autofocus placeholder="{% trans "Enter a theory" %}" type="search" />
+		</label>
+		<input type="submit" class="search" value="{% trans "Search" %}" />
+	</fieldset>
+</form>
+{% endblock%}
+
+{% block main-content %}{% endblock %}
+{% endblock%}
+
 {% block footer %}
 <footer>
 <p><a href="http://www.rhok.org/solutions/climate-goggles">{% trans "Solution" %}</a> {% trans "for" %} <a href="http://www.rhok.org/event/berlin-germany">Random Hacks of Kindness Berlin 2011</a> | <a href="/statistics">{% trans "Statistics" %}</a></p>
@@ -24,4 +42,26 @@
 </footer>
 {% endblock %}
 
-{% block content %}{% endblock %}
+
+
+{% block hidden %}
+
+<div id="errorwrapper">
+	<div class="message">
+		<span class="close" title="Close"> × </span>
+		<div class="basic">{% trans "<strong>Oh snap, something went wrong!</strong> We cannot give you the results yet. Sorry for that." %}</div>
+		<div class="more">Description</div>
+	</div>
+</div>
+
+<form action="/i18n/setlang/" method="post" class="language-form">
+	{% csrf_token %}
+	<input name="next" type="hidden" value="/" />
+	<select name="language">
+		{% for lang in LANGUAGES %}
+		<option value="{{ lang.0 }}">{{ lang.1 }}</option>
+		{% endfor %}
+	</select>
+	<input type="submit" value="Go" />
+</form>
+{% endblock %}

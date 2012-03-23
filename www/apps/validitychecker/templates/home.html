@@ -5,7 +5,7 @@
 
 {% block extra_title %} - Home{% endblock %}
 
-{% block content %}
+{% block top-content %}
 <div class="content">
 	<div class="sell">
 		<h2>{% trans "Protect your brain from climate fiction." %}</h2>
@@ -13,16 +13,14 @@
 		<p>{% trans "Climate Goggles help you to find the truth from the world's most respected scientists." %}</p>
 	</div>
 
-	<form class="search" method="get" action="{{ target }}">
-		<fieldset>
-			<label for="query">
-				<span class="visuallyhidden">{% trans "Climate science theory" %}</span>
-				<input id="query" name="query" class="" required autofocus placeholder="{% trans "Enter a theory" %}" type="search" />
-			</label>
-			<input type="submit" class="search" value="{% trans "Search" %}" />
-		</fieldset>
-	</form>
+	<noscript>
+		<strong>
+			{% trans "Please enable JavaScript for this website to work" %}
+		</strong>
+	</noscript>
+{% endblock %}
 
+{% block main-content %}
 	<div class="popular">
 		<h2>{% trans "Popular searches" %}</h2>
 		<ul>
@@ -31,17 +29,5 @@
 			{% endfor %}
 		</ul>
 	</div>
-
-	<form action="/i18n/setlang/" method="post" class="language-form">
-		{% csrf_token %}
-		<input name="next" type="hidden" value="/" />
-		<select name="language">
-			{% for lang in LANGUAGES %}
-			<option value="{{ lang.0 }}">{{ lang.1 }}</option>
-			{% endfor %}
-		</select>
-		<input type="submit" value="Go" />
-	</form>
-
 </div>
 {% endblock %}

@@ -10,7 +10,7 @@ The soap client will not save the data to the database so we have to do it here.
 from celery.task import task, subtask
 
 from www.apps.validitychecker.models import Query, Article, Author, KeyValue
-from www.apps.validitychecker.tasks.db import store_credible_in_db
+from www.apps.validitychecker.tasks.db import store_in_db
 from www.apps.validitychecker.utils.wokmws import WokmwsSoapClient
 
 from datetime import date, datetime
@@ -18,13 +18,13 @@ import urllib
 
 @task(name='fetch.wok_soap_complete')
 def wok_soap_complete(number = 10, qobj=None, callback=None):
-    soap = prepare_client(number, qobj)
-    result = search_soap(soap, qobj, number)
-    records = extract_data(qobj, result)
-    return store_credible_in_db(qobj, records)
+    soap = prepare_client(number=number, qobj=qobj)
+    res = search_soap(soap=soap, qobj=qobj, number=number)
+    rec = extract_data(qobj=qobj, result=res)
+    return store_in_db(records=rec, qobj=qobj, credible=True)
 
 @task(name='fetch.prepare_client')
-def prepare_client(number = 10, qobj=None, callback=None):
+def prepare_client(number, qobj=None, callback=None):
 
     logger = prepare_client.get_logger()
     logger.info("Preaparing client")
@@ -33,8 +33,8 @@ def prepare_client(number = 10, qobj=None, callback=None):
     # not getting a new sid for each query avoids throttling
     sobj, created = KeyValue.objects.get_or_create(key='SID')
 
-    # lazy invalid function, invalid if older than 30 minutes
-    valid = lambda: (datetime.now() - sobj.created_at).seconds/60 < 30
+    # lazy invalid function, invalid if older than 45 minutes
+    valid = lambda: (datetime.now() - sobj.created_at).seconds/60 < 45
 
     soap = None
     if not created and valid():
@@ -103,10 +103,13 @@ def extract_data(qobj, result, callback=None):
         record['authors'] = wos_record.authors[0][1]
         record['publish_date'] = date(int([x for x in wos_record.source if x[0]=='Published.BiblioYear'][0][1][0]), 1, 1)
 
+        # convert name from Doe, J to J Doe
+        record['authors'] = map(lambda author: ' '.join(reversed(map(unicode.strip, author.split(',')))), record['authors'])
+
         records.append(record)
 
     if callback:
-        return subtask(callback).delay(qobj, records)
+        return subtask(callback).delay(qobj=qobj, records=records)
     else:
         return records
 

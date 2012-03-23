@@ -1,3 +1,10 @@
+"""
+This file is still under development
+A good description of what has to be done can be found here: http://senko.net/en/django-nginx-gunicorn/
+"""
+
+
+
 from www.conf.settings import *
 import os
 
@@ -35,12 +42,21 @@ COMPRESS_OUTPUT_DIR = 'CACHE'
 #COMPRESS_CSS_FILTERS = ['compressor.filters.css_default.CssAbsoluteFilter']
 #COMPRESS_JS_FILTERS = ['compressor.filters.jsmin.JSMinFilter']
 
-#CACHE_BACKEND
+#CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+}
 
 MIDDLEWARE_CLASSES += ((),
     'htmlmin.middleware.HtmlMinifyMiddleware',
     'django.middleware.gzip.GZipMiddleware',
     'django.middleware.cache.CacheMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',
+    'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.http.ConditionalGetMiddleware',
 )
 
@@ -62,3 +78,4 @@ EMAIL_PORT = 25
 # EMAIL_HOST_USER = "servers"
 # EMAIL_HOST_PASSWORD = "s3cr3t"
 
+CELERY_SEND_EVENTS=False

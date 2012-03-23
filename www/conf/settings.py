@@ -156,14 +156,19 @@ MIDDLEWARE_CLASSES = (
 
 # use redis
 BROKER_URL = "redis://localhost:6379/0"
+BROKER_USER = ""
+BROKER_PASSWORD =""
+BROKER_VHOST = "0"
+REDIS_CONNECT_RETRY = True
 
+#CELERY_SEND_EVENTS=True use -E option instead
 CELERY_RESULT_BACKEND = "redis"
 CELERY_REDIS_HOST = "localhost"
 CELERY_REDIS_PORT = 6379
 CELERY_REDIS_DB = 0
 
-import djcelery
-djcelery.setup_loader()
+CELERY_TASK_RESULT_EXPIRES =  10
+CELERYBEAT_SCHEDULER="djcelery.schedulers.DatabaseScheduler"
 
 ## Worker settings
 ## If you're doing mostly I/O you can have more processes,
@@ -190,6 +195,9 @@ CELERYD_TASK_TIME_LIMIT = 180 # maximum time you have to wait for a task
 
 TEST_RUNNER = 'djcelery.contrib.test_runner.CeleryTestSuiteRunner'
 
+import djcelery
+djcelery.setup_loader()
+
 #==============================================================================
 # Apps
 #==============================================================================
@@ -205,7 +213,25 @@ INSTALLED_APPS = (
     'south', # for migrations
     'compressor', # for js and css minification
     'djcelery', # for queues
+    'gunicorn',
 
     # project apps
     'www.apps.validitychecker',
 )
+
+#==============================================================================
+# Validitychecker App Settings
+#==============================================================================
+
+# urls for wweb of knwoledge/isi index
+# you may want to use a url behind a proxy/ ssh tunnel in order to use the ip
+# authentication
+
+# wok web service
+WOK_AUTH_URL = 'http://search.isiknowledge.com:2003/esti/wokmws/ws/WOKMWSAuthenticate?wsdl'
+WOK_SEARCH_URL = 'http://search.isiknowledge.com:2003/esti/wokmws/ws/WokSearchLite?wsdl'
+
+# website
+WOK_QUERY_URL = 'http://apps.webofknowledge.com/WOS_GeneralSearch.do'
+WOK_SID_URL = 'http://www.webofknowledge.com/?DestApp=WOS'
+

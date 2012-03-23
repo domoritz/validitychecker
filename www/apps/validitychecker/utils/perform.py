@@ -9,7 +9,8 @@ import re
 
 a_first = lambda x: x[0] if x else ''
 a_join = lambda x: ''.join(x)
-a_split = lambda x: x.split(',')
+a_split_komma = lambda x: x.split(',')
+a_split_semicolon = lambda x: x.split(';')
 
 def a_date(y):
     if y: # year may be 0 if nothing found
@@ -25,7 +26,14 @@ def a_find(string, pattern):
     else:
         return ''
 
-a_int = lambda i: int(i) if i else 0
+#a_int = lambda i: int(i) if i else 0
+
+def a_int(i):
+    try:
+        return int(i) if i else 0
+    except ValueError:
+        print "no int", i
+        return 0
 
 def a_trim(n):
     n = n.strip()

@@ -9,6 +9,7 @@ from suds.client import Client
 from suds.transport.http import HttpTransport
 import urllib2
 import datetime
+from django.conf import settings
 
 class HTTPSudsPreprocessor(urllib2.BaseHandler):
     def __init__(self, SID):
@@ -32,8 +33,8 @@ class WokmwsSoapClient():
         self.url = self.client = {}
         self.SID = ''
 
-        self.url['auth'] = 'http://search.isiknowledge.com:2003/esti/wokmws/ws/WOKMWSAuthenticate?wsdl'
-        self.url['search'] = 'http://search.isiknowledge.com:2003/esti/wokmws/ws/WokSearchLite?wsdl'
+        self.url['auth'] = settings.WOK_AUTH_URL
+        self.url['search'] = settings.WOK_SEARCH_URL
 
         # use sid if provided
         if SID:

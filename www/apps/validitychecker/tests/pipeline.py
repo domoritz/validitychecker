@@ -14,7 +14,7 @@ oktest.DIFF = repr
 
 from www.apps.validitychecker.tasks.scrape import make_scholar_urls, fetch_page_from_url, parse_scholar_page
 from www.apps.validitychecker.tasks.fetch import prepare_client, search_soap, extract_data, wok_soap_complete
-from www.apps.validitychecker.tasks.db import store_non_credible_in_db, store_credible_in_db
+from www.apps.validitychecker.tasks.db import store_in_db
 from www.apps.validitychecker.tasks.combined import combined_data_retrieve
 
 from celery.task import subtask
@@ -32,11 +32,11 @@ class ScrapeScholarPipelineTestCase(TestCase):
         qobj.save()
 
         number = 10
-        # fetch_page_from_url -> parse_page -> store_non_credible_in_db
+        # fetch_page_from_url -> parse_page -> store_in_db
         self.result = make_scholar_urls.delay(number, qobj, \
             callback=subtask(fetch_page_from_url, \
             callback=subtask(parse_scholar_page, \
-            callback=subtask(store_non_credible_in_db))))
+            callback=subtask(store_in_db, credible=False))))
         self.result.get() # block
 
         self.articles = qobj.articles.all()
@@ -63,6 +63,11 @@ class ScrapeScholarPipelineTestCase(TestCase):
     def _(self):
         for article in self.articles:
             ok(article.state) == Article.INCOMPLETE
+
+    @test("state should not be credible")
+    def _(self):
+        for article in self.articles:
+            ok(article.credible) == False
 
 ###########################################
 # Fetch/SOAP Tests
@@ -92,7 +97,7 @@ class SoapPipelineTestCase(TestCase):
         result = prepare_client.delay(number, qobj, \
             callback=subtask(search_soap, \
             callback=subtask(extract_data, \
-            callback=subtask(store_credible_in_db))))
+            callback=subtask(store_in_db, credible=True))))
 
         cls.result = []
         while isinstance(result, EagerResult) or isinstance(result, AsyncResult):
@@ -122,7 +127,7 @@ class SoapPipelineTestCase(TestCase):
     @test("article should be credible")
     def _(self):
         for article in self.articles:
-            ok(article.is_credible) == True
+            ok(article.credible) == True
 
     @test("state should be incomplete because some things like the snippet are missing")
     def _(self):
@@ -131,7 +136,7 @@ class SoapPipelineTestCase(TestCase):
 
 
 ###########################################
-# Complete test, highest abstraction
+# Complete test, high abstraction
 ###########################################
 
 class CompleteRetrieveTestCase(TestCase):

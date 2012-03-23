@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'content.html' %}
 {% load i18n %}
 {% block extra_js %}
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
@@ -21,22 +21,10 @@
 {% endblock %}
 {% block body_classes %}class="statistics"{% endblock %}
 
-{% block content %}
-<div class="content">
-	<form class="search" method="get" action="{{ target }}">
-		<fieldset>
-			<label for="q">
-				<span class="visuallyhidden">{% trans "Climate science theory" %}</span>
-				<input id="q" name="q" required autofocus placeholder="{% trans "Check a theory" %}" type="search" />
-			</label>
-			<input type="submit" value="{% trans "Search" %}" />
-		</fieldset>
-	</form>
-
-	<div class="clearfix"></div>
-	<h2>Statistics</h2>
-	<div id="statistics">
-		<div id="chart_div"></div>
-	</div>
+{% block main-content %}
+<div class="clearfix"></div>
+<h2>Statistics</h2>
+<div id="statistics">
+	<div id="chart_div"></div>
 </div>
 {% endblock %}

@@ -12,9 +12,13 @@ def statistics(request):
                  "year": ("string", "Year")}
     #data_for_articles = [{'count': article['count'], 'year': article['publish_date'].year} for article in Article.objects.values('publish_date').annotate(count=Count('id')) if article['publish_date']]
 
+    start_year = 1950
+
     data = []
     years_count_db = list(Article.objects.values('publish_date').filter(publish_date__isnull=False).annotate(count=Count('id')).order_by('publish_date'))
-    for year in range(1900, date.today().year+1):
+    while years_count_db[0]['publish_date'].year < start_year:
+        years_count_db.pop(0)
+    for year in range(start_year, date.today().year+1):
         if years_count_db[0]['publish_date'].year == year:
             e = years_count_db.pop(0)
             data.append({'year': year, 'count':e['count']})
