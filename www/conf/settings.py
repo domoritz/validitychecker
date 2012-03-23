@@ -213,6 +213,7 @@ INSTALLED_APPS = (
     'south', # for migrations
     'compressor', # for js and css minification
     'djcelery', # for queues
+    'gunicorn',
 
     # project apps
     'www.apps.validitychecker',

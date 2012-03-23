@@ -16,6 +16,7 @@ from django.conf import settings
 
 # globals
 BIN_DIRECTORY = 'bin'
+NGINX_CONF = 'conf/nginx.conf'
 
 #################################
 # Development
@@ -26,14 +27,48 @@ def hello():
     print("Hello world!")
 
 def start():
-    """ Run climate goggles """
+    """ instructions """
+    print """run in separate shells with active virtualenv:
+        fab run_redis
+        fab run_celeryd
+        fab run_django
+        fab run_celerycam"""
+
+def run_redis():
+    """ Run redis server """
+    local("redis-server /usr/local/etc/redis.conf")
+
+def run_celeryd():
+    """ Run celeryd """
+    with lcd(BIN_DIRECTORY):
+        local("python manage.py celeryd -E -B -l INFO")
+
+def run_django():
+    """ Run django server """
     with lcd(BIN_DIRECTORY):
         local("python manage.py runserver")
+
+def run_celerycam():
+    """ Run celerycam """
+    with lcd(BIN_DIRECTORY):
+        local("python manage.py celerycam")
+
+def run_django_production():
+    """ runs the server in production mode """
+    print "IN DEVELOPMENT"
+    with lcd(BIN_DIRECTORY):
+        local("python manage.py collectstatic")
+        local("python manage.py compress --force")
+        local("python manage.py run_gunicorn --workers 5")
+
+def run_nginx():
+    local("nginx -c %c" % NGINX_CONF)
+
 
 def test():
     """ Test the main app """
     with lcd(BIN_DIRECTORY):
-        result = local('python manage.py test validitychecker', capture=True)
+        result = local('python manage.py test validitychecker -v 2', capture=True)
     if result.failed and not confirm("Tests failed. Continue anyway?"):
         abort("Aborting at user request.")
 
@@ -41,9 +76,9 @@ def install():
     """ Installs all dependencies """
     if sys.platform == 'darwin':
         local("easy_install pip")
-        local("brew install sqlite3 redis")
+        local("brew install sqlite3 redis memcached nginx")
     else:
-        sudo("apt-get install python python-pip sqlite3 redis")
+        sudo("apt-get install python python-pip sqlite3 redis memcached nginx")
     local("pip install -r requirements.txt")
     syncdb()
     migrate()
@@ -81,13 +116,17 @@ def write_requirements():
     """ Write requirements to file """
     local("pip freeze > requirements.txt")
 
+def collect_messages():
+    """ Collects messages from files for translations """
+    local("python %s/manage.py makemessages -l de" % BIN_DIRECTORY)
+    print "now go to '/rosetta' for translations"
 
 #################################
 # Deployment
 ################################
 
 env.hosts = ['yourdomain.com']
-env.user = "www-web"
+env.user = "www-data"
 
 def invoke(comman):
     """ invoke a command on the remote """

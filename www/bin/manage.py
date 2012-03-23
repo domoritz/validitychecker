@@ -42,6 +42,8 @@ if not has_settings_option() and not 'DJANGO_SETTINGS_MODULE' in os.environ:
     settings_module = '%s.conf.dev.settings' % PROJECT_MODULE_NAME
     os.environ['DJANGO_SETTINGS_MODULE'] = settings_module
 
+print "Use settings:", os.environ['DJANGO_SETTINGS_MODULE']
+
 os.environ['DJANGO_PROJECT_ROOT'] = PROJECT_ROOT
 
 execute_from_command_line()
