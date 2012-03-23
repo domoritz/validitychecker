@@ -31,6 +31,11 @@ Just in case you have no idea how to get going here are the required commands fo
 * [Django](https://www.djangoproject.com/)
 * [SQLite](http://www.sqlite.org/) or any other relational database that is supported by django
 * [Redis](http://redis.io/) or rabbitMQ as a celery broker
+* [Memcached](http://memcached.org/) for caching*
+* [Nginx](hhttp://nginx.org/) for serving the statics*
+
+\* not necessary for development
+
 
 Full list of required Python packages can be found in `www/requirements.txt`. Install them with:
 
@@ -105,6 +110,9 @@ No Fabric task for that yet. Do it yourself.
 
 ## Documentation
 * [Wiki](/domoritz/validitychecker/wiki)
+
+To see all Fabric tasks, use `fab -l` in the www directory.
+
 
 ## Problem
 * It is difficult for normal people to classify the background of scientific statements and what is serious. 
