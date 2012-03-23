@@ -1,3 +1,10 @@
+"""
+This file is still under development
+A good description of what has to be done can be found here: http://senko.net/en/django-nginx-gunicorn/
+"""
+
+
+
 from www.conf.settings import *
 import os
 

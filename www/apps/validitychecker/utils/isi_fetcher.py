@@ -5,15 +5,14 @@
 isi post data builder
 """
 
-import urllib
-import urllib2
-import urlparse
+import urllib, urllib2, urlparse
 import sys
+from django.conf import settings
 
 class IsiFetcher():
     def __init__(self, sid=None):
-        self.query_url = 'http://apps.webofknowledge.com/WOS_GeneralSearch.do'
-        self.sid_url = 'http://www.webofknowledge.com/?DestApp=WOS'
+        self.query_url = settings.WOK_QUERY_URL
+        self.sid_url = settings.WOK_SID_URL
         self.headers = { 'User-Agent' : 'Mozilla/5.0' }
 
         self.post_data = {}

@@ -218,3 +218,20 @@ INSTALLED_APPS = (
     # project apps
     'www.apps.validitychecker',
 )
+
+#==============================================================================
+# Validitychecker App Settings
+#==============================================================================
+
+# urls for wweb of knwoledge/isi index
+# you may want to use a url behind a proxy/ ssh tunnel in order to use the ip
+# authentication
+
+# wok web service
+WOK_AUTH_URL = 'http://search.isiknowledge.com:2003/esti/wokmws/ws/WOKMWSAuthenticate?wsdl'
+WOK_SEARCH_URL = 'http://search.isiknowledge.com:2003/esti/wokmws/ws/WokSearchLite?wsdl'
+
+# website
+WOK_QUERY_URL = 'http://apps.webofknowledge.com/WOS_GeneralSearch.do'
+WOK_SID_URL = 'http://www.webofknowledge.com/?DestApp=WOS'
+
