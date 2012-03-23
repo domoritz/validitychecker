@@ -59,16 +59,19 @@ def run_django_production():
     with lcd(BIN_DIRECTORY):
         local("python manage.py collectstatic")
         local("python manage.py compress --force")
-        local("python manage.py run_gunicorn --workers 5")
+        local("python manage.py run_gunicorn --workers 5 --settings=www.conf.dev.settings")
 
 def run_nginx():
     local("nginx -c %c" % NGINX_CONF)
 
 
-def test():
+def test(test_class=None):
     """ Test the main app """
     with lcd(BIN_DIRECTORY):
-        result = local('python manage.py test validitychecker -v 2', capture=True)
+        if test_class:
+            result = local('python manage.py test validitychecker.%s -v 2' % test_class, capture=True)
+        else:
+            result = local('python manage.py test validitychecker -v 2', capture=True)
     if result.failed and not confirm("Tests failed. Continue anyway?"):
         abort("Aborting at user request.")
 
@@ -78,7 +81,7 @@ def install():
         local("easy_install pip")
         local("brew install sqlite3 redis memcached nginx")
     else:
-        sudo("apt-get install python python-pip sqlite3 redis memcached nginx")
+        sudo("apt-get install python-pip sqlite3 redis memcached nginx")
     local("pip install -r requirements.txt")
     syncdb()
     migrate()
@@ -130,6 +133,7 @@ env.user = "www-data"
 
 def invoke(comman):
     """ invoke a command on the remote """
+    print "better use 'fab [options] -- [shell command]'"
     run(command)
 
 def update_django_project():

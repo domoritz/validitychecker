@@ -32,33 +32,43 @@ Just in case you have no idea how to get going here are the required commands fo
 * [SQLite](http://www.sqlite.org/) or any other relational database that is supported by django
 * [Redis](http://redis.io/) or rabbitMQ as a celery broker
 
-Full list of required Python packages can be found in www/devel-req.txt. Install them with:
+Full list of required Python packages can be found in `www/requirements.txt`. Install them with:
 
-    pip install -r www/devel-req.txt
+    pip install -r www/requirements.txt
 
 #### Installation
 This Version requires a little bit more work that version 1 since it is more powerful.
 
     git clone git@github.com:domoritz/validitychecker.git
     git co develop
-    sudo apt-get install python python-pip python-dev sqlite3 redis
+    sudo apt-get install python python-pip python-dev sqlite3 redis memcached nginx
     # use virtualenv if possible!
     pip install -r requirements.txt 
     cd validitychecker/www/bin/
     python manage.py syncdb --noinput
     python manage.py migrate
+    
+Or you can use Fabric (if you have Fabric and Python preinstalled)
+
+	git clone git@github.com:domoritz/validitychecker.git
+    git co develop
+    # use virtualenv if possible!
+    fab install
 
 #### Run
 Run these three command in different sessions on your command line
 
     # start redis
     redis-server /usr/local/etc/redis.conf
+    # or: fab run_redis
 
     # run celery
-    python manage.py celeryd -l INFO -E -B
+    python manage.py celeryd -E -B -l INFO
+    # or: fab run_celeryd
 
     # run django
     python manage.py runserver
+    # or: fab run_django
 
 #### Monitor celery tasks
 
@@ -67,17 +77,31 @@ Run these three command in different sessions on your command line
 
     # run celerycam for monitoring tasks in django admin
     python manage.py celerycam
+    # or: fab celerycam
 
 
 #### Run tests
 
-    python manage.py test validitychecker -v 2
+To run all tests
+
+    python manage.py test validitychecker
+    # or: fab test
+
+Or if you want to run a specific test
+
+    python manage.py test validitychecker.TestClass
+    # or: fab test:TestClass
 
 #### Update the language files (in this case for German)
 
     python bin/manage.py makemessages -l de
+    #or: fab collect_messages
 
 Then you can go to `/rosetta` to translate the application.
+
+#### Deployment
+
+No Fabric task for that yet. Do it yourself.
 
 ## Documentation
 * [Wiki](/domoritz/validitychecker/wiki)
