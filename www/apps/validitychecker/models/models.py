@@ -110,7 +110,7 @@ class Query(models.Model):
 
     def save(self, *args, **kwargs):
         """ automatically freeze query if successful or failed"""
-        if self.successful() or self.failed():
+        if not self.frozen and self.successful() or self.failed():
             self.freeze()
         super(Query, self).save(*args, **kwargs)  # Call the "real" save() method.
 
