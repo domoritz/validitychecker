@@ -3,7 +3,8 @@
 
 from django.db import models
 from celery.result import AsyncResult
-from celery import states
+#from celery import states
+
 
 class Author(models.Model):
     articles = models.ManyToManyField('Article', verbose_name="articles published")
@@ -14,6 +15,7 @@ class Author(models.Model):
 
     class Meta:
         app_label = 'validitychecker'
+
 
 class Article(models.Model):
 
@@ -50,7 +52,7 @@ class Article(models.Model):
                 self.state = Article.COMPLETE
             else:
                 self.state = Article.INCOMPLETE
-        super(Article, self).save(*args, **kwargs) # Call the "real" save() method.
+        super(Article, self).save(*args, **kwargs)  # Call the "real" save() method.
 
     def __unicode__(self):
         return u'%s' % self.title
@@ -60,6 +62,7 @@ class Article(models.Model):
 
     class Meta:
         app_label = 'validitychecker'
+
 
 class Query(models.Model):
 
@@ -71,13 +74,14 @@ class Query(models.Model):
 
     task_id = models.CharField(default=DEFAULT_ID, max_length=255, null=True, db_index=True, verbose_name="celery task id")
 
-    frozen = models.NullBooleanField(verbose_name="query results frozen", help_text="Indicated that the task finished and may be deleted")
+    frozen = models.NullBooleanField(verbose_name="query results frozen", help_text="Indicated that the task finished and results may be deleted")
+    frozen_state = models.CharField(default='DEFAULT', max_length=40, null=True, verbose_name="celery task state if frozen")
 
     # celery task stuff
     def state(self):
         """returns the query status from the celery task"""
-        if self.successful():
-            return states.SUCCESS
+        if self.frozen:
+            return self.frozen_state
         else:
             return AsyncResult(self.task_id).state
 
@@ -85,27 +89,30 @@ class Query(models.Model):
         return AsyncResult(self.task_id).result
 
     def failed(self):
+        # TODO use frozen, if possible
         return AsyncResult(self.task_id).failed()
 
     def ready(self):
+        # TODO use frozen, if possible
+        # http://ask.github.com/celery/reference/celery.states.html#ready-states
         return AsyncResult(self.task_id).ready()
 
     def successful(self):
-        if self.frozen:
-            return True
-        elif self.task_id != self.DEFAULT_ID:
-            return AsyncResult(self.task_id).successful()
-        else:
-            return False
+        return self.state() == 'SUCCESS'
 
     last_updated = models.DateTimeField(auto_now=True)
 
+    def freeze(self, save=False):
+        self.frozen_state = AsyncResult(self.task_id).state
+        self.frozen = True
+        if save:
+            super(Query, self).save()
 
     def save(self, *args, **kwargs):
-        """ automatically freeze query if successful """
-        if self.successful():
-            self.frozen = True
-        super(Query, self).save(*args, **kwargs) # Call the "real" save() method.
+        """ automatically freeze query if successful or failed"""
+        if self.successful() or self.failed():
+            self.freeze()
+        super(Query, self).save(*args, **kwargs)  # Call the "real" save() method.
 
     def __unicode__(self):
         return u'%s' % self.query
@@ -115,6 +122,7 @@ class Query(models.Model):
 
     class Meta:
         app_label = 'validitychecker'
+
 
 class KeyValue(models.Model):
     key = models.CharField(unique=True, max_length=60, blank=False, db_index=True)

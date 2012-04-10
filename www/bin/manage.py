@@ -7,6 +7,7 @@ from django import get_version
 from django.core.management import execute_from_command_line, LaxOptionParser
 from django.core.management.base import BaseCommand
 
+
 # Work out the project module name and root directory, assuming that this file
 # is located at [project]/bin/manage.py
 PROJECT_ROOT, PROJECT_MODULE_NAME = os.path.split(
@@ -47,3 +48,4 @@ print "Use settings:", os.environ['DJANGO_SETTINGS_MODULE']
 os.environ['DJANGO_PROJECT_ROOT'] = PROJECT_ROOT
 
 execute_from_command_line()
+
